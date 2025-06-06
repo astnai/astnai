@@ -19,7 +19,6 @@ type NanoCursor = {
 
 export default function Terminal() {
   // ===== State Management =====
-  // Terminal state
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([
     {
@@ -44,16 +43,11 @@ export default function Terminal() {
   const [username, setUsername] = useState("user@computer");
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-
-  // Media state
   const [imageLoaded, setImageLoaded] = useState(false);
-  const isMobile = useIsMobile();
   const [isVideoMode, setIsVideoMode] = useState(false);
   const [videoDuration, setVideoDuration] = useState("00:00");
   const [currentTime, setCurrentTime] = useState("00:00");
   const [isHandlingVideoControl, setIsHandlingVideoControl] = useState(false);
-
-  // Nano editor state
   const [isNanoMode, setIsNanoMode] = useState(false);
   const [nanoContent, setNanoContent] = useState<string[]>([]);
   const [nanoCursor, setNanoCursor] = useState<NanoCursor>({ x: 0, y: 0 });
@@ -64,8 +58,23 @@ export default function Terminal() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const nanoRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // ===== Utility Functions =====
+  const getSortedItems = (dir: Directory) => {
+    return Object.entries(dir.children)
+      .map(([name, item]) => ({
+        name: item.type === "directory" ? `${name}/` : name,
+        type: item.type,
+        sortKey: name.toLowerCase(),
+      }))
+      .sort((a, b) => {
+        if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
+        return a.sortKey.localeCompare(b.sortKey);
+      })
+      .map((item) => item.name);
+  };
+
   const getCurrentDirectory = () => {
     const pathParts = currentPath.split("/").filter(Boolean);
     let current = fileSystem["/"] as Directory;
@@ -101,17 +110,17 @@ export default function Terminal() {
         }
       }
       return current;
-    } else {
-      const currentDir = getCurrentDirectory();
-      if (
-        !currentDir ||
-        currentDir.type !== "directory" ||
-        !currentDir.children
-      ) {
-        return null;
-      }
-      return currentDir.children[path] || null;
     }
+
+    const currentDir = getCurrentDirectory();
+    if (
+      !currentDir ||
+      currentDir.type !== "directory" ||
+      !currentDir.children
+    ) {
+      return null;
+    }
+    return currentDir.children[path] || null;
   };
 
   const getDisplayPath = () => (currentPath === "/" ? "/" : currentPath);
@@ -125,7 +134,7 @@ export default function Terminal() {
       .padStart(2, "0")}`;
   };
 
-  // ===== Audio Functions =====
+  // ===== Media Functions =====
   const playOutputSound = () => {
     if (audioRef.current && !isMobile) {
       audioRef.current.currentTime = 0;
@@ -135,11 +144,37 @@ export default function Terminal() {
     }
   };
 
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const currentTime = videoRef.current.currentTime;
+      setCurrentTime(formatTime(currentTime));
+    }
+  };
+
+  const handleMetadataLoaded = () => {
+    if (videoRef.current) {
+      const duration = videoRef.current.duration;
+      setVideoDuration(formatTime(duration));
+      videoRef.current.play().catch((error) => {
+        console.error("Error auto-playing video:", error);
+      });
+    }
+  };
+
+  const handleDurationChange = () => {
+    if (videoRef.current) {
+      const duration = videoRef.current.duration;
+      setVideoDuration(formatTime(duration));
+    }
+  };
+
   // ===== Tab Completion Functions =====
   const getAvailableItems = () => {
     const currentDir = getCurrentDirectory();
     if (currentDir && currentDir.type === "directory" && currentDir.children) {
-      return Object.keys(currentDir.children);
+      return Object.keys(currentDir.children).sort((a, b) =>
+        a.localeCompare(b)
+      );
     }
     return [];
   };
@@ -147,7 +182,6 @@ export default function Terminal() {
   const handleTabCompletion = () => {
     const parts = input.trim().split(" ");
     const command = parts[0].toLowerCase();
-
     if (!["cd", "cat", "viu", "ls", "play", "nano"].includes(command)) return;
 
     const lastArg = parts[parts.length - 1] || "";
@@ -162,7 +196,8 @@ export default function Terminal() {
       ) {
         const directories = Object.entries(currentDir.children)
           .filter(([, item]) => item.type === "directory")
-          .map(([name]) => `${name}/`);
+          .map(([name]) => `${name}/`)
+          .sort((a, b) => a.localeCompare(b));
 
         if (parts.length === 1) {
           if (directories.length > 0) {
@@ -184,7 +219,7 @@ export default function Terminal() {
         }
 
         const matches = directories.filter((dir) =>
-          dir.toLowerCase().includes(lastArg.toLowerCase())
+          dir.toLowerCase().startsWith(lastArg.toLowerCase())
         );
 
         if (matches.length === 1) {
@@ -235,9 +270,7 @@ export default function Terminal() {
         currentDir.type === "directory" &&
         currentDir.children
       ) {
-        const items = Object.entries(currentDir.children).map(([name, item]) =>
-          item.type === "directory" ? `${name}/` : name
-        );
+        const items = getSortedItems(currentDir);
 
         if (parts.length === 1) {
           if (items.length > 0) {
@@ -288,7 +321,7 @@ export default function Terminal() {
         }
 
         const matches = items.filter((item) =>
-          item.toLowerCase().includes(lastArg.toLowerCase())
+          item.toLowerCase().startsWith(lastArg.toLowerCase())
         );
 
         if (matches.length === 1) {
@@ -364,7 +397,7 @@ export default function Terminal() {
     // Handle ls command
     const availableItems = getAvailableItems();
     const matches = availableItems.filter((item) =>
-      item.toLowerCase().includes(lastArg.toLowerCase())
+      item.toLowerCase().startsWith(lastArg.toLowerCase())
     );
 
     if (matches.length === 1) {
@@ -406,22 +439,6 @@ export default function Terminal() {
     }
   };
 
-  // ===== Video Functions =====
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      setCurrentTime(formatTime(videoRef.current.currentTime));
-    }
-  };
-
-  const handleMetadataLoaded = () => {
-    if (videoRef.current) {
-      setVideoDuration(formatTime(videoRef.current.duration));
-      videoRef.current.play().catch((error) => {
-        console.error("Error auto-playing video:", error);
-      });
-    }
-  };
-
   // ===== Command Execution =====
   const executeCommand = (cmd: string) => {
     let output: string | React.JSX.Element = "";
@@ -430,7 +447,6 @@ export default function Terminal() {
     const args = parts.slice(1);
     const currentPrompt = getCurrentPrompt();
 
-    // Add command to history if not empty
     if (cmd.trim()) {
       setCommandHistory((prev) => [...prev, cmd.trim()]);
       setHistoryIndex(-1);
@@ -526,23 +542,17 @@ Tip: Use TAB for autocompletion of files and directories`;
       } else {
         const newUsername = args[0];
         setUsername(newUsername);
-        // Save username to localStorage
         localStorage.setItem("terminal_username", newUsername);
         output = `Username changed to: ${newUsername}`;
       }
     } else if (command.startsWith("echo")) {
       const args = cmd.substring(5).trim();
-
-      // Handle empty echo
       if (!args) {
         output = "";
         return;
       }
 
-      // Process the arguments
       let processedOutput = args;
-
-      // Handle quotes
       if (
         (args.startsWith('"') && args.endsWith('"')) ||
         (args.startsWith("'") && args.endsWith("'"))
@@ -550,18 +560,13 @@ Tip: Use TAB for autocompletion of files and directories`;
         processedOutput = args.slice(1, -1);
       }
 
-      // Handle escape sequences
       processedOutput = processedOutput
         .replace(/\\n/g, "\n")
         .replace(/\\t/g, "\t")
         .replace(/\\"/g, '"')
         .replace(/\\'/g, "'")
-        .replace(/\\\\/g, "\\");
-
-      // Handle environment variables
-      processedOutput = processedOutput.replace(
-        /\$(\w+)/g,
-        (match, variable) => {
+        .replace(/\\\\/g, "\\")
+        .replace(/\$(\w+)/g, (match, variable) => {
           switch (variable) {
             case "USER":
               return username.split("@")[0];
@@ -574,8 +579,7 @@ Tip: Use TAB for autocompletion of files and directories`;
             default:
               return match;
           }
-        }
-      );
+        });
 
       output = processedOutput;
     } else if (command === "date") {
@@ -595,7 +599,6 @@ Tip: Use TAB for autocompletion of files and directories`;
         "Nov",
         "Dec",
       ];
-
       const day = days[now.getDay()];
       const month = months[now.getMonth()];
       const date = now.getDate().toString().padStart(2, "0");
@@ -627,18 +630,11 @@ Path: ${currentPath}`;
         currentDir.type === "directory" &&
         currentDir.children
       ) {
-        const items = Object.entries(currentDir.children).map(
-          ([name, item]) => {
-            return item.type === "directory" ? `${name}/` : name;
-          }
-        );
-
-        // Check if we're in media/photos or media/videos
+        const items = getSortedItems(currentDir);
         const isMediaPhotos = currentPath === "/media/photos";
         const isMediaVideos = currentPath === "/media/videos";
 
         if (isMediaPhotos || isMediaVideos) {
-          // Create a 2x2 grid of file names
           const gridItems = items.map((name) => (
             <div key={name} className="text-neutral-800 dark:text-neutral-200">
               {name}
@@ -671,7 +667,6 @@ Path: ${currentPath}`;
         }
         output = "";
       } else {
-        // Remove trailing slash if present
         const targetPath = args[0].replace(/\/$/, "");
         const target = getFileAtPath(targetPath);
 
@@ -776,10 +771,10 @@ Path: ${currentPath}`;
                 autoPlay
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleMetadataLoaded}
-                onDurationChange={handleMetadataLoaded}
-                onPlay={() => handleTimeUpdate()}
-                onPause={() => handleTimeUpdate()}
-                onSeeked={() => handleTimeUpdate()}
+                onDurationChange={handleDurationChange}
+                onPlay={handleTimeUpdate}
+                onPause={handleTimeUpdate}
+                onSeeked={handleTimeUpdate}
                 playsInline
                 preload="auto"
               />
@@ -806,8 +801,6 @@ Path: ${currentPath}`;
       } else {
         const message = args.join(" ");
         const maxWidth = 40;
-
-        // Split message into lines of maxWidth
         const words = message.split(" ");
         const lines: string[] = [];
         let currentLine = "";
@@ -822,7 +815,6 @@ Path: ${currentPath}`;
         });
         if (currentLine) lines.push(currentLine);
 
-        // Create speech bubble
         const maxLineLength = Math.max(...lines.map((line) => line.length));
         const bubble = [
           " " + "_".repeat(maxLineLength + 2),
@@ -833,7 +825,6 @@ Path: ${currentPath}`;
           " " + "-".repeat(maxLineLength + 2),
         ].join("\n");
 
-        // Cow ASCII art
         const cow = `
         \\   ^__^
          \\  (oo)\\_______
@@ -935,16 +926,11 @@ Path: ${currentPath}`;
       output = `Command not found: ${command}`;
     }
 
-    // Update history and play sound
     setHistory((prev) => [
       ...prev,
       { command: cmd, output, prompt: currentPrompt },
     ]);
-
-    if (cmd.trim()) {
-      playOutputSound();
-    }
-
+    if (cmd.trim()) playOutputSound();
     setInput("");
   };
 
@@ -1148,7 +1134,6 @@ Path: ${currentPath}`;
       const maxY = lines.length - 1;
       const maxX = lines[nanoCursor.y]?.length || 0;
 
-      // Prevent default for all navigation keys
       if (
         [
           "arrowup",
