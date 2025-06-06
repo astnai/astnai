@@ -26,11 +26,11 @@ const navItems: NavItem[] = [
     description:
       "Showcases the projects, products, and contributions I've developed",
   },
-  {
-    title: "astnai/playlist",
-    url: "/playlist",
-    description: "Features my curated list of favorite songs",
-  },
+  // {
+  //   title: "astnai/playlist",
+  //   url: "/playlist",
+  //   description: "Features my curated list of favorite songs",
+  // },
   {
     title: "astnai/books",
     url: "/books",
