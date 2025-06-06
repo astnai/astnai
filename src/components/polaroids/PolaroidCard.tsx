@@ -2,7 +2,7 @@
 
 import * as motion from "motion/react-client";
 import { Polaroid } from "@/lib/types/polaroid";
-import { getRotation } from "@/lib/utils/polaroid";
+import { getRotation } from "@/lib/utils/rotatePolaroid";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { PolaroidImage } from "./PolaroidImage";
 
