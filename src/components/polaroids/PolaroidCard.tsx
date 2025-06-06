@@ -19,10 +19,11 @@ export const PolaroidCard = ({ polaroid, index }: PolaroidCardProps) => {
       drag={!isMobile}
       dragMomentum={false}
       initial={{ rotate: getRotation(index) }}
+      whileTap={{ scale: 1.04 }}
       className="relative w-full aspect-[4/4] bg-[#fdfdfd] p-2 rounded-sm shadow-xs ring ring-neutral-800/10 dark:shadow-none select-none"
       style={{
         touchAction: isMobile ? "auto" : "none",
-        cursor: isMobile ? "default" : "move",
+        cursor: isMobile ? "default" : "pointer",
         WebkitOverflowScrolling: "touch",
       }}
     >
