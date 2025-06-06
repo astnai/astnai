@@ -16,8 +16,8 @@ interface Project {
 const projects: Project[] = [
   {
     title: "Buen Valley",
-    url: "https://buenvalley.com",
-    status: "building",
+    url: "https://x.com/buenvalley",
+    status: "soon",
     description:
       "Open-source community created to contribute to the startup ecosystem in Buenos Aires, AR.",
   },
