@@ -21,20 +21,6 @@ const projects: Project[] = [
     description:
       "Open-source community created to contribute to the startup ecosystem in Buenos Aires, AR.",
   },
-  {
-    title: "Project 2",
-    url: "https://github.com/astnai/project2",
-    status: "completed",
-    description:
-      "Alorem ipsum dolor sit amet, consectetur adipiscing elit. sed do eiusmod tempor incididunt.",
-  },
-  {
-    title: "Project 3",
-    url: "https://github.com/astnai/project3",
-    status: "planning",
-    description:
-      "Alorem ipsum dolor sit amet, consectetur adipiscing elit. sed do eiusmod tempor incididunt.",
-  },
 ];
 
 const ProjectCard = ({ project }: { project: Project }) => {

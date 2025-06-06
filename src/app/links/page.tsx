@@ -15,11 +15,11 @@ interface SocialLink {
 }
 
 const socialLinks: SocialLink[] = [
-  {
-    title: "astnai/instagram",
-    url: "https://instagram.astnai.com",
-    description: "Instagram profile of Agustin Arias",
-  },
+  // {
+  //   title: "astnai/instagram",
+  //   url: "https://instagram.astnai.com",
+  //   description: "Instagram profile of Agustin Arias",
+  // },
   {
     title: "astnai/twitter",
     url: "https://twitter.astnai.com",
