@@ -1,0 +1,148 @@
+import { Polaroid } from "@/lib/types/polaroid"
+
+export const polaroids: Polaroid[] = [
+  {
+    id: 1,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZTP9cMKWrIFcJiGlxmC1AZbE97LfrvBPpudDa",
+    alt: "An image of me as a very young child interacting with a computer.",
+    caption: "little dreamer",
+  },
+  {
+    id: 2,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZNjFBsMkHOxAEvLC3rnBDoTZUuW6MQyG8qShb",
+    alt: "Me with a cardboard king crown at a shopping mall.",
+    caption: "little king",
+  },
+  {
+    id: 3,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZK8US8dxw06YFkXG2zsOy3QuBrRt5m1lfohJZ",
+    alt: "A photo of me and my sister dressed elegantly.",
+    caption: "me and sister",
+  },
+  {
+    id: 4,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZMorXn0NFNWlwBEkf5r98LYqpxD4MIuUzc1Rs",
+    alt: "A photo of me as a child wearing a suit with a casual look.",
+    caption: "casual?",
+  },
+  {
+    id: 5,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZJI6p8gb016vzOgUKQBH25DA3CnwyXfGhWEal",
+    alt: "A photo of my group of friends sitting at the Puerto Madryn lookout point watching the ocean.",
+    caption: "gpt group",
+  },
+  {
+    id: 6,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZeam8TV2Ew7F2c31Za5fvOjtkRSHWz6pJBqMx",
+    alt: "A funny photo of me and my dad.",
+    caption: "me and dad",
+  },
+  {
+    id: 7,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZrTY1AQts1tIHVqGmAi9oeTEYUQRhjgcDFwJ2",
+    alt: "A photo of me and my mom.",
+    caption: "me and mom",
+  },
+  {
+    id: 8,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZaP2ovF7QdWPwNRb7s6m49VL0urfxtXiBZeaO",
+    alt: "A photo of me and my mom laughing.",
+    caption: "me and dad 2",
+  },
+  {
+    id: 9,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZjGYecslCrt7fhRvj6JA8Iao4iYVxb1GN0cQZ",
+    alt: "An image of me and my grandmother where I'm serving her mate.",
+    caption: "me and grandmother",
+  },
+  {
+    id: 10,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZA6L7Orip7uidP2Hrb6JeQzOm9wLsK4tClFnf",
+    alt: "A funny selfie where I'm taking a photo with a cardboard cutout of Messi.",
+    caption: "me and messi",
+  },
+  {
+    id: 11,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZJSwG2L016vzOgUKQBH25DA3CnwyXfGhWEalr",
+    alt: "A black and white image at the beach with a Boca jersey and mate.",
+    caption: "b&w",
+  },
+  {
+    id: 12,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZ2Bgdpq89pxahjg1MceNdGWZqySrF5nAu6BTR",
+    alt: "An image of me completely alone at the beach staring into nothingness.",
+    caption: "alone",
+  },
+  {
+    id: 13,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZCirz2qBoCYswk0SxG3zga65NhtfeZUuXmbTD",
+    alt: "A very tender photo with my cat.",
+    caption: "me and cat",
+  },
+  {
+    id: 14,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZPFKvEDhNLDPyigE6KmWVxSf4BA5jJYv3QMRT",
+    alt: "My first time skiing in Esquel, Chubut.",
+    caption: "first time cornered",
+  },
+  {
+    id: 15,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZhgPqISAWFDYmUGP2vMQNKJsju4aSynkobIz9",
+    alt: "An image of being world champions and celebrating in Trelew, Chubut.",
+    caption: "world champions",
+  },
+  {
+    id: 16,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZ7ety9fzcHDANJhRsnGvB1b9p5PVXWL3TUlt0",
+    alt: "A photo of the champions and their family at El Monumental stadium.",
+    caption: "champions in home",
+  },
+  {
+    id: 17,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZJalxU2016vzOgUKQBH25DA3CnwyXfGhWEalr",
+    alt: "A photo of my basic essentials: a mate and a thermos.",
+    caption: "essentials",
+  },
+  {
+    id: 18,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZl0Ye9wsYsoH34BGeukaiqmORQX2yE0FCZV6n",
+    alt: "A vintage photo of me as a very young child looking at the camera.",
+    caption: "curious child",
+  },
+  {
+    id: 19,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZcWFaMFeZpfNQtY7FU2L8x5OzcWRKMaPy09rA",
+    alt: "A selfie of me after running 12km with a Boca jersey on my head.",
+    caption: "running 12km",
+  },
+  {
+    id: 20,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZzgkltxv2tMpuEhwxCUD6Kcr5PsR0SJZgey3H",
+    alt: "A photo enjoying a sunset and mate in CABA (Buenos Aires).",
+    caption: "sunset :)",
+  },
+  {
+    id: 21,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZyfPPY3RaFAHnCItpOjK5NT9qBk4rRvg7YMDo",
+    alt: "A photo of me dressed all in black in the Chinatown neighborhood of CABA.",
+    caption: "in chinatown",
+  },
+  {
+    id: 22,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZwlYochyEokbUOj65igKaIvfVYeTM20mGPX31",
+    alt: "A photo of me traveling for the first time to San Francisco.",
+    caption: "flying to sf",
+  },
+  {
+    id: 23,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZw03VoEyEokbUOj65igKaIvfVYeTM20mGPX31",
+    alt: "A selfie of me drinking tea.",
+    caption: "drinking tea",
+  },
+  {
+    id: 24,
+    src: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZTPnCmP0rIFcJiGlxmC1AZbE97LfrvBPpudDa",
+    alt: "A selfie of me drinking mate.",
+    caption: "drinking mate",
+  },
+] 
