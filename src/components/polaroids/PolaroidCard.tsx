@@ -19,7 +19,7 @@ export const PolaroidCard = ({ polaroid, index }: PolaroidCardProps) => {
       drag={!isMobile}
       dragMomentum={false}
       initial={{ rotate: getRotation(index) }}
-      className="relative w-full aspect-[4/4] bg-[#fdfdfd] p-2 shadow-xs ring ring-neutral-800/10 dark:shadow-none select-none"
+      className="relative w-full aspect-[4/4] bg-[#fdfdfd] p-2 rounded-sm shadow-xs ring ring-neutral-800/10 dark:shadow-none select-none"
       style={{
         touchAction: isMobile ? "auto" : "none",
         cursor: isMobile ? "default" : "move",
@@ -27,7 +27,7 @@ export const PolaroidCard = ({ polaroid, index }: PolaroidCardProps) => {
       }}
     >
       <PolaroidImage src={polaroid.src} alt={polaroid.alt} index={index} />
-      <p className="text-neutral-800 mt-1 py-2 text-center font-handwriting text-2xl">
+      <p className="text-neutral-800 font-medium mt-1 py-2 text-center font-handwriting text-2xl">
         {polaroid.caption}
       </p>
     </motion.div>
