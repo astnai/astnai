@@ -127,6 +127,7 @@ export default function Terminal() {
   const getCurrentPrompt = () => `${username}:${getDisplayPath()}$`;
 
   const formatTime = (timeInSeconds: number) => {
+    if (!isFinite(timeInSeconds) || timeInSeconds < 0) return "00:00";
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
     return `${minutes.toString().padStart(2, "0")}:${seconds
@@ -145,25 +146,35 @@ export default function Terminal() {
   };
 
   const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      const currentTime = videoRef.current.currentTime;
+    if (!videoRef.current) return;
+    const currentTime = videoRef.current.currentTime;
+    if (isFinite(currentTime)) {
       setCurrentTime(formatTime(currentTime));
     }
   };
 
-  const handleMetadataLoaded = () => {
-    if (videoRef.current) {
-      const duration = videoRef.current.duration;
-      setVideoDuration(formatTime(duration));
-      videoRef.current.play().catch((error) => {
-        console.error("Error auto-playing video:", error);
-      });
+  const handleVideoLoad = () => {
+    if (!videoRef.current) return;
+
+    // Reset states
+    setCurrentTime("00:00");
+    setVideoDuration("00:00");
+
+    // Set initial duration if available
+    if (isFinite(videoRef.current.duration)) {
+      setVideoDuration(formatTime(videoRef.current.duration));
     }
+
+    // Start playback
+    videoRef.current.play().catch((error) => {
+      console.error("Error auto-playing video:", error);
+    });
   };
 
   const handleDurationChange = () => {
-    if (videoRef.current) {
-      const duration = videoRef.current.duration;
+    if (!videoRef.current) return;
+    const duration = videoRef.current.duration;
+    if (isFinite(duration)) {
       setVideoDuration(formatTime(duration));
     }
   };
@@ -745,15 +756,11 @@ Path: ${currentPath}`;
           file.content === "video" &&
           file.videoUrl
         ) {
+          // Reset states before starting new video
+          setCurrentTime("00:00");
+          setVideoDuration("00:00");
           setIsVideoMode(true);
-          if (videoRef.current) {
-            videoRef.current.currentTime = 0;
-            videoRef.current.volume = 0.5;
-            videoRef.current.muted = false;
-            videoRef.current.play().catch((error) => {
-              console.error("Error playing video:", error);
-            });
-          }
+
           output = (
             <div className="mt-2 mb-3">
               <div className="mb-1 flex items-center justify-between">
@@ -770,7 +777,7 @@ Path: ${currentPath}`;
                 controls={false}
                 autoPlay
                 onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleMetadataLoaded}
+                onLoadedData={handleVideoLoad}
                 onDurationChange={handleDurationChange}
                 onPlay={handleTimeUpdate}
                 onPause={handleTimeUpdate}
