@@ -15,13 +15,13 @@ export const BookCard = ({ book }: BookCardProps) => {
         className="
           relative
           h-full
-          overflow-hidden 
-          rounded-r-xl 
-          shadow-lg 
+          overflow-hidden
+          rounded-r-xl
+          shadow-lg
           ring ring-neutral-900/10
-          dark:ring-neutral-100/10 
+          dark:ring-neutral-100/10
           dark:shadow-white/14
-          group 
+          group
           hover:shadow-none
           ease-in-out
           transition-all duration-200
@@ -32,11 +32,11 @@ export const BookCard = ({ book }: BookCardProps) => {
       >
         <div
           className="
-            absolute inset-0 
-            z-10 
+            absolute inset-0
+            z-10
             bg-white
             dark:bg-black
-            opacity-0 
+            opacity-0
             group-hover:opacity-40
             ease-in-out
             transition-all duration-200
@@ -48,8 +48,8 @@ export const BookCard = ({ book }: BookCardProps) => {
           fill
           className="
             object-cover
-            object-center 
-            rounded-r-xl 
+            object-center
+            rounded-r-xl
             scale-[1.04]
           "
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

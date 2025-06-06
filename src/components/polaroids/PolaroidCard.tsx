@@ -8,24 +8,25 @@ import { PolaroidImage } from "./PolaroidImage";
 
 interface PolaroidCardProps {
   polaroid: Polaroid;
+  index: number;
 }
 
-export const PolaroidCard = ({ polaroid }: PolaroidCardProps) => {
+export const PolaroidCard = ({ polaroid, index }: PolaroidCardProps) => {
   const isMobile = useIsMobile();
 
   return (
     <motion.div
       drag={!isMobile}
       dragMomentum={false}
-      initial={{ rotate: getRotation(polaroid.id) }}
-      className="relative w-full aspect-[4/4] bg-[#fdfdfd] p-2 shadow-xs ring ring-neutral-800/10 dark:ring-neutral-200/10 dark:shadow-white/10 select-none"
+      initial={{ rotate: getRotation(index) }}
+      className="relative w-full aspect-[4/4] bg-[#fdfdfd] p-2 shadow-xs ring ring-neutral-800/10 dark:shadow-none select-none"
       style={{
         touchAction: isMobile ? "auto" : "none",
         cursor: isMobile ? "default" : "move",
         WebkitOverflowScrolling: "touch",
       }}
     >
-      <PolaroidImage src={polaroid.src} alt={polaroid.alt} />
+      <PolaroidImage src={polaroid.src} alt={polaroid.alt} index={index} />
       <p className="text-neutral-800 mt-1 py-2 text-center font-handwriting text-2xl">
         {polaroid.caption}
       </p>
