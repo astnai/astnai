@@ -8,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function PolaroidsPage() {
-  return <PolaroidGallery polaroids={polaroids} />;
+  return (
+    <>
+      <PolaroidGallery polaroids={polaroids} />
+      <div className="py-12" />
+    </>
+  );
 }

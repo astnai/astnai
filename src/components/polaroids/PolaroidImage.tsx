@@ -8,7 +8,7 @@ interface Props {
 
 export const PolaroidImage = ({ src, alt, index }: Props) => {
   return (
-    <div className="relative w-full h-[100%]">
+    <div className="relative w-full h-[100%] bg-[#fdfdfd]">
       <Image
         src={src}
         alt={alt}
