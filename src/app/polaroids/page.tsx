@@ -4,7 +4,7 @@ import { polaroids } from "@/data/polaroids";
 
 export const metadata: Metadata = {
   title: "polaroids",
-  description: "Polaroids photos of Agustín Arias's life",
+  description: "Polaroid photos of Agustín Arias's life",
 };
 
 export default function PolaroidsPage() {

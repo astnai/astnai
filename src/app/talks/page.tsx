@@ -2,8 +2,8 @@ import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Talks",
-  description: "Talks and presentations by Agustín Arias",
+  title: "talks",
+  description: "Agustín Arias's talks and presentations",
 };
 
 export default function TalksPage() {

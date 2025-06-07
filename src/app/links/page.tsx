@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "links",
-  description: "Social links and profiles of a Agustín Arias",
+  description: "Social links and profiles of Agustín Arias",
 };
 
 
@@ -62,7 +62,7 @@ const LinksPage = () => {
 
       <section aria-labelledby="social-note-heading" className="mt-12">
         <h2 id="social-note-heading" className="sr-only">
-          Social Media Note
+          Personal Note
         </h2>
         <p className="text-sm md:text-base text-neutral-800 dark:text-neutral-200 text-balance">
           <span className="text-blue-600 dark:text-blue-500" aria-hidden="true">

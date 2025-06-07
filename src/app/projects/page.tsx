@@ -2,9 +2,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "projects",
-  description: "A collection of projects built by Agustín Arias.",
+  description: "A collection of Agustín Arias's projects.",
 };
-
 
 interface Project {
   title: string;
@@ -25,7 +24,7 @@ const projects: Project[] = [
 
 const ProjectCard = ({ project }: { project: Project }) => {
   return (
-    <div className="group">
+    <article className="group">
       <div className="flex items-center gap-1">
         <a
           href={project.url}
@@ -33,17 +32,21 @@ const ProjectCard = ({ project }: { project: Project }) => {
           target="_blank"
           rel="noopener noreferrer"
           tabIndex={0}
+          aria-label={`Visit ${project.title} project`}
         >
           {project.title}
         </a>
-        <span className="italic text-blue-600/70 dark:text-blue-500/70">
+        <span
+          className="italic text-blue-600/70 dark:text-blue-500/70"
+          aria-label={`Status: ${project.status}`}
+        >
           ─ {project.status}
         </span>
       </div>
       <p className="mt-0.5 text-balance sm:max-w-[40ch] text-neutral-500">
         {project.description}
       </p>
-    </div>
+    </article>
   );
 };
 
@@ -63,6 +66,7 @@ export default function ProjectsPage() {
           className="flex items-center gap-0.5 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 underline underline-offset-2 decoration-2 decoration-neutral-200 hover:decoration-neutral-300 dark:decoration-neutral-800 dark:hover:decoration-neutral-700"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="View more projects on GitHub"
         >
           more things on github
         </a>

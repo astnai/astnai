@@ -12,39 +12,38 @@ const navItems: NavItem[] = [
     title: "astnai/polaroids",
     url: "/polaroids",
     description:
-      "Displays a polaroid-style photo collection from my daily life",
+      "Features a polaroid-style photo collection from daily life moments",
   },
   {
     title: "astnai/terminal",
     url: "/terminal",
-    description:
-      "lorem",
+    description: "Presents an interactive terminal for exploring a file system",
   },
   {
     title: "astnai/projects",
     url: "/projects",
     description:
-      "Showcases the projects, products, and contributions I've developed",
+      "Showcases various projects, products, and technical contributions",
   },
   // {
   //   title: "astnai/playlist",
   //   url: "/playlist",
-  //   description: "Features my curated list of favorite songs",
+  //   description: "Presents a curated collection of favorite musical tracks",
   // },
   {
     title: "astnai/books",
     url: "/books",
-    description: "Shows my reading list of completed books",
+    description: "Displays a collection of completed book readings",
   },
   {
     title: "astnai/talks",
     url: "/talks",
-    description: "Highlights the presentations and talks I've given",
+    description: "Presents a collection of technical presentations and talks",
   },
   {
     title: "astnai/links",
     url: "/links",
-    description: "Contains my social media profiles and related content",
+    description: "Provides access to social media profiles and related content",
   },
 ];
 
