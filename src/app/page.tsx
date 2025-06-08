@@ -63,7 +63,7 @@ const NavLink = ({ title, url, description }: NavItem) => (
 export default function Home() {
   return (
     <nav aria-label="Personal content navigation">
-      <ul className="space-y-8">
+      <ul className="space-y-12">
         {navItems.map((item) => (
           <NavLink
             key={item.url}
