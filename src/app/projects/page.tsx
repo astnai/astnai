@@ -37,7 +37,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
           {project.title}
         </a>
         <span
-          className="italic text-blue-600/70 dark:text-blue-500/70"
+          className="italic text-blue-500/60"
           aria-label={`Status: ${project.status}`}
         >
           ─ {project.status}

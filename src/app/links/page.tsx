@@ -25,6 +25,11 @@ const socialLinks: SocialLink[] = [
     url: "https://twitter.astnai.com",
     description: "Twitter profile of Agustin Arias",
   },
+  {
+    title: "astnai/github",
+    url: "https://twitter.astnai.com",
+    description: "GitHub profile of Agustin Arias",
+  },
 ];
 
 const LinkCard = ({ linkItem }: { linkItem: SocialLink }) => {
@@ -49,11 +54,11 @@ const LinkCard = ({ linkItem }: { linkItem: SocialLink }) => {
 const LinksPage = () => {
   return (
     <>
-      <section aria-labelledby="social-links-heading" className="space-y-8">
+      <section aria-labelledby="social-links-heading">
         <h2 id="social-links-heading" className="sr-only">
           Social Media Links
         </h2>
-        <div className="space-y-6">
+        <div className="space-y-12">
           {socialLinks.map((linkItem) => (
             <LinkCard key={linkItem.title} linkItem={linkItem} />
           ))}
@@ -65,7 +70,7 @@ const LinksPage = () => {
           Personal Note
         </h2>
         <p className="text-sm md:text-base text-neutral-800 dark:text-neutral-200 text-balance">
-          <span className="text-blue-600 dark:text-blue-500" aria-hidden="true">
+          <span className="text-blue-500" aria-hidden="true">
             *
           </span>
           personally, i don&apos;t use social media much. i&apos;m only active
@@ -73,7 +78,7 @@ const LinksPage = () => {
           <span className="bg-neutral-200 dark:bg-neutral-800 py-0.5 px-1 md:py-1 rounded-md text-xs md:text-sm">
             twitter
           </span>{" "}
-          — the <span className="italic">everything</span> app
+          — the <span className="italic">everything</span> app.
         </p>
       </section>
     </>

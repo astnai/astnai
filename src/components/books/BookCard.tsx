@@ -16,15 +16,14 @@ export const BookCard = ({ book }: BookCardProps) => {
           relative
           h-full
           overflow-hidden
-          rounded-r-xl
-          shadow-lg
-          ring ring-neutral-900/10
-          dark:ring-neutral-100/10
-          dark:shadow-white/14
+          rounded-r-2xl rounded-l-sm
+          shadow-xl
+          ring ring-neutral-800/10
+          dark:ring-neutral-200/10
+          dark:shadow-white/10
           group
           hover:shadow-none
-          ease-in-out
-          transition-all duration-200
+          transition-all duration-200 ease-in-out
           cursor-pointer
           block
         "
@@ -49,7 +48,6 @@ export const BookCard = ({ book }: BookCardProps) => {
           className="
             object-cover
             object-center
-            rounded-r-xl
             scale-[1.04]
           "
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
