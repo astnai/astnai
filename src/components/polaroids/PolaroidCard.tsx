@@ -2,7 +2,6 @@
 
 import * as motion from "motion/react-client";
 import { Polaroid } from "@/lib/types/polaroid";
-import { getRotation } from "@/lib/utils/rotatePolaroid";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { PolaroidImage } from "./PolaroidImage";
 
@@ -13,7 +12,8 @@ interface PolaroidCardProps {
 
 export const PolaroidCard = ({ polaroid, index }: PolaroidCardProps) => {
   const isMobile = useIsMobile();
-  const initialRotation = getRotation(index);
+
+  const initialRotation = ((index * 7) % 10) - 5;
 
   return (
     <motion.div
