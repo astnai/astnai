@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import { unstable_ViewTransition as ViewTransition } from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import Header from "@/components/header/Header";
 import "./globals.css";
 
@@ -47,6 +48,7 @@ export default function RootLayout({
           <main className="mx-auto max-w-screen-sm px-8 text-neutral-800 dark:text-neutral-200">
             {children}
             <Analytics />
+            <SpeedInsights/>
           </main>
         </ViewTransition>
       </body>

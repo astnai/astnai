@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { Metadata } from "next";
 
+
+
 export const metadata: Metadata = {
   title: "links",
   description: "Social links and profiles of Agustín Arias",

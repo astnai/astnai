@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "astnai",
+  description: "A collection of Agustín Arias's projects.",
+};
 interface NavItem {
   title: string;
   url: string;
