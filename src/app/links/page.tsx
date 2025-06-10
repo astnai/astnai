@@ -24,12 +24,12 @@ const socialLinks: SocialLink[] = [
   // },
   {
     title: "astnai/twitter",
-    url: "https://twitter.astnai.com",
+    url: "https://twitter.com/astnai",
     description: "Twitter profile of Agustin Arias",
   },
   {
     title: "astnai/github",
-    url: "https://twitter.astnai.com",
+    url: "https://github.com/astnai",
     description: "GitHub profile of Agustin Arias",
   },
 ];
