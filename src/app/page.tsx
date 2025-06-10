@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "astnai",
-  description: "A collection of Agustín Arias's projects.",
+  description: "astnai is the handle of Agustín Arias, a developer from Patagonia, Argentina.",
 };
 interface NavItem {
   title: string;
