@@ -17,8 +17,10 @@ type NanoCursor = {
   y: number;
 };
 
+// ===== Component =====
 export default function Terminal() {
   // ===== State Management =====
+  // Terminal state
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([
     {
@@ -35,7 +37,7 @@ export default function Terminal() {
     },
     {
       command: "",
-      output: "Type 'help' for available commands.",
+      output: "Type 'help' to see available commands",
       prompt: "",
     },
   ]);
@@ -43,11 +45,15 @@ export default function Terminal() {
   const [username, setUsername] = useState("user@computer");
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  // Media state
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isVideoMode, setIsVideoMode] = useState(false);
   const [videoDuration, setVideoDuration] = useState("00:00");
   const [currentTime, setCurrentTime] = useState("00:00");
   const [isHandlingVideoControl, setIsHandlingVideoControl] = useState(false);
+
+  // Nano editor state
   const [isNanoMode, setIsNanoMode] = useState(false);
   const [nanoContent, setNanoContent] = useState<string[]>([]);
   const [nanoCursor, setNanoCursor] = useState<NanoCursor>({ x: 0, y: 0 });
@@ -60,7 +66,12 @@ export default function Terminal() {
   const nanoRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  // ===== Utility Functions =====
+  // ===== File System Utilities =====
+  /**
+   * Gets sorted items from a directory
+   * @param dir - The directory to get items from
+   * @returns Array of sorted item names
+   */
   const getSortedItems = (dir: Directory) => {
     return Object.entries(dir.children)
       .map(([name, item]) => ({
@@ -75,6 +86,10 @@ export default function Terminal() {
       .map((item) => item.name);
   };
 
+  /**
+   * Gets the current directory object
+   * @returns The current directory or null if not found
+   */
   const getCurrentDirectory = () => {
     const pathParts = currentPath.split("/").filter(Boolean);
     let current = fileSystem["/"] as Directory;
@@ -93,6 +108,11 @@ export default function Terminal() {
     return current;
   };
 
+  /**
+   * Gets a file or directory at the specified path
+   * @param path - The path to get the file/directory from
+   * @returns The file/directory object or null if not found
+   */
   const getFileAtPath = (path: string) => {
     if (path.startsWith("/")) {
       const pathParts = path.split("/").filter(Boolean);
@@ -123,9 +143,24 @@ export default function Terminal() {
     return currentDir.children[path] || null;
   };
 
+  // ===== Terminal Utilities =====
+  /**
+   * Gets the display path for the terminal prompt
+   * @returns The formatted path string
+   */
   const getDisplayPath = () => (currentPath === "/" ? "/" : currentPath);
+
+  /**
+   * Gets the current terminal prompt
+   * @returns The formatted prompt string
+   */
   const getCurrentPrompt = () => `${username}:${getDisplayPath()}$`;
 
+  /**
+   * Formats time in seconds to MM:SS format
+   * @param timeInSeconds - Time in seconds to format
+   * @returns Formatted time string
+   */
   const formatTime = (timeInSeconds: number) => {
     if (!isFinite(timeInSeconds) || timeInSeconds < 0) return "00:00";
     const minutes = Math.floor(timeInSeconds / 60);
@@ -135,7 +170,10 @@ export default function Terminal() {
       .padStart(2, "0")}`;
   };
 
-  // ===== Media Functions =====
+  // ===== Media Handlers =====
+  /**
+   * Plays the terminal output sound
+   */
   const playOutputSound = () => {
     if (audioRef.current && !isMobile) {
       audioRef.current.currentTime = 0;
@@ -145,6 +183,9 @@ export default function Terminal() {
     }
   };
 
+  /**
+   * Handles video time updates
+   */
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const currentTime = videoRef.current.currentTime;
@@ -153,6 +194,9 @@ export default function Terminal() {
     }
   };
 
+  /**
+   * Handles video load events
+   */
   const handleVideoLoad = () => {
     if (!videoRef.current) return;
 
@@ -171,6 +215,9 @@ export default function Terminal() {
     });
   };
 
+  /**
+   * Handles video duration changes
+   */
   const handleDurationChange = () => {
     if (!videoRef.current) return;
     const duration = videoRef.current.duration;
@@ -179,7 +226,11 @@ export default function Terminal() {
     }
   };
 
-  // ===== Tab Completion Functions =====
+  // ===== Tab Completion =====
+  /**
+   * Gets available items for tab completion
+   * @returns Array of available item names
+   */
   const getAvailableItems = () => {
     const currentDir = getCurrentDirectory();
     if (currentDir && currentDir.type === "directory" && currentDir.children) {
@@ -190,6 +241,9 @@ export default function Terminal() {
     return [];
   };
 
+  /**
+   * Handles tab completion for commands
+   */
   const handleTabCompletion = () => {
     const parts = input.trim().split(" ");
     const command = parts[0].toLowerCase();
@@ -451,6 +505,10 @@ export default function Terminal() {
   };
 
   // ===== Command Execution =====
+  /**
+   * Executes a terminal command
+   * @param cmd - The command to execute
+   */
   const executeCommand = (cmd: string) => {
     let output: string | React.JSX.Element = "";
     const parts = cmd.trim().split(" ");
@@ -942,11 +1000,19 @@ Path: ${currentPath}`;
   };
 
   // ===== Event Handlers =====
+  /**
+   * Handles form submission
+   * @param e - Form event
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     executeCommand(input);
   };
 
+  /**
+   * Handles keyboard events
+   * @param e - Keyboard event
+   */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (isVideoMode) {
       e.preventDefault();
@@ -1026,6 +1092,7 @@ Path: ${currentPath}`;
   };
 
   // ===== Effects =====
+  // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio("/terminal/output-sound.mp3");
     if (audioRef.current) {
@@ -1033,12 +1100,14 @@ Path: ${currentPath}`;
     }
   }, []);
 
+  // Auto-scroll terminal
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [history, imageLoaded]);
 
+  // Focus management
   useEffect(() => {
     const handleFocus = () => {
       if (!isMobile) {
@@ -1061,6 +1130,7 @@ Path: ${currentPath}`;
     };
   }, [isMobile]);
 
+  // Video controls
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (isVideoMode && !isHandlingVideoControl) {
@@ -1118,6 +1188,7 @@ Path: ${currentPath}`;
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [isVideoMode, isHandlingVideoControl]);
 
+  // Load saved username
   useEffect(() => {
     const savedUsername = localStorage.getItem("terminal_username");
     if (savedUsername) {
@@ -1125,6 +1196,7 @@ Path: ${currentPath}`;
     }
   }, []);
 
+  // Focus nano editor
   useEffect(() => {
     if (isNanoMode && nanoRef.current) {
       setTimeout(() => {
@@ -1133,6 +1205,7 @@ Path: ${currentPath}`;
     }
   }, [isNanoMode]);
 
+  // Nano editor keyboard controls
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (!isNanoMode) return;
@@ -1213,14 +1286,13 @@ Path: ${currentPath}`;
           onClick={() => !isMobile && inputRef.current?.focus()}
         >
           {/* Terminal header */}
-          <div className="p-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+          <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
             <div className="flex space-x-2">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
             </div>
-            <div className="text-neutral-500">Terminal</div>
-            <div className="w-[72px]"></div>
+            <div className="text-neutral-500 absolute left-1/2 -translate-x-1/2">Terminal</div>
           </div>
 
           {/* Terminal content */}
