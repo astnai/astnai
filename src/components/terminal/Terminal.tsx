@@ -77,11 +77,25 @@ export default function Terminal() {
       .map(([name, item]) => ({
         name: item.type === "directory" ? `${name}/` : name,
         type: item.type,
-        sortKey: name.toLowerCase(),
+        sortKey: name,
       }))
       .sort((a, b) => {
         if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
-        return a.sortKey.localeCompare(b.sortKey);
+
+        const aName = a.sortKey.split(".")[0];
+        const bName = b.sortKey.split(".")[0];
+
+        const nameCompare = aName.localeCompare(bName, undefined, {
+          sensitivity: "case",
+          caseFirst: "lower",
+        });
+
+        if (nameCompare !== 0) return nameCompare;
+
+        return a.sortKey.localeCompare(b.sortKey, undefined, {
+          sensitivity: "case",
+          caseFirst: "lower",
+        });
       })
       .map((item) => item.name);
   };
@@ -247,7 +261,8 @@ export default function Terminal() {
   const handleTabCompletion = () => {
     const parts = input.trim().split(" ");
     const command = parts[0].toLowerCase();
-    if (!["cd", "cat", "viu", "ls", "play", "nano"].includes(command)) return;
+    if (!["cd", "cat", "viu", "ls", "play", "nano", "copy"].includes(command))
+      return;
 
     const lastArg = parts[parts.length - 1] || "";
     const currentDir = getCurrentDirectory();
@@ -526,21 +541,22 @@ export default function Terminal() {
       if (args.length === 0) {
         output = `Available commands:
 
-ls          - List directory contents
-cd          - Change directory (cd [dir], cd .., cd)
-pwd         - Print working directory
-cat         - Display file contents
-viu         - View image files directly in terminal
-rename      - Change username (rename [username])
-clear       - Clear terminal screen
-echo        - Display text (echo [text])
-date        - Show current date and time
-whoami      - Display current username
-cowsay      - Make a cow say something (cowsay [message])
-nano        - View and navigate text files (nano [filename])
-help        - Show this help message (help [command] for details)
+ls          - List files and directories
+cd          - Change directory
+pwd         - Show current directory
+cat         - Show file contents
+viu         - View images
+rename      - Change username
+clear       - Clear screen
+echo        - Print text
+date        - Show date and time
+whoami      - Show username
+cowsay      - Make a cow say something
+nano        - View text files
+copy        - Copy text file to clipboard
+help        - Show this help message
 
-Tip: Use TAB for autocompletion of files and directories`;
+Tip: Use TAB to autocomplete files and directories`;
       } else {
         const helpCommand = args[0].toLowerCase();
         switch (helpCommand) {
@@ -591,6 +607,10 @@ Tip: Use TAB for autocompletion of files and directories`;
           case "nano":
             output =
               "nano - View and navigate text files\nUsage: nano [filename]\nOpens a read-only text editor with cursor navigation.\nControls:\n- Arrow keys or WASD to move cursor\n- X to exit";
+            break;
+          case "copy":
+            output =
+              "copy - Copy text file to clipboard\n\nUsage: copy filename.txt\n\nCopies the contents of a text file to your clipboard.\nOnly works with .txt files.";
             break;
           case "help":
             output =
@@ -985,6 +1005,35 @@ Path: ${currentPath}`;
           output = `nano: ${args[0]}: No such file`;
         }
       }
+    } else if (command === "copy") {
+      if (args.length === 0) {
+        output = "Missing file operand";
+      } else {
+        const file = getFileAtPath(args[0]) as File;
+        if (file && file.type === "file") {
+          if (file.content === "image" || file.content === "video") {
+            output = `copy: ${args[0]}: Is a binary file`;
+          } else if (!args[0].toLowerCase().endsWith(".txt")) {
+            output = `copy: ${args[0]}: Only .txt files are supported`;
+          } else {
+            const content = file.content as string;
+            try {
+              navigator.clipboard
+                .writeText(content)
+                .then(() => {
+                  output = `Contents of ${args[0]} copied to clipboard`;
+                })
+                .catch(() => {
+                  output = `Failed to copy to clipboard. Please check if you have granted clipboard permissions.`;
+                });
+            } catch (error) {
+              output = `Failed to copy to clipboard: ${error}`;
+            }
+          }
+        } else {
+          output = `copy: ${args[0]}: No such file`;
+        }
+      }
     } else if (command === "") {
       output = "";
     } else {
@@ -1279,7 +1328,7 @@ Path: ${currentPath}`;
 
   // ===== Render =====
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center leading-normal">
       <div className="max-w-screen-sm w-full">
         <div
           className="bg-neutral-100 dark:bg-neutral-900 shadow-xs dark:shadow-white/10 ring ring-neutral-800/10 dark:ring-neutral-200/10 rounded-xl h-[500px] overflow-hidden flex flex-col text-xs sm:text-sm tracking-tight"
@@ -1292,7 +1341,9 @@ Path: ${currentPath}`;
               <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
             </div>
-            <div className="text-neutral-500 absolute left-1/2 -translate-x-1/2">Terminal</div>
+            <div className="text-neutral-500 absolute left-1/2 -translate-x-1/2">
+              Terminal
+            </div>
           </div>
 
           {/* Terminal content */}
