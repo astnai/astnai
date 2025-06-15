@@ -28,9 +28,6 @@ export const metadata: Metadata = {
     template: "astnai/%s",
     default: "astnai",
   },
-  alternates: {
-    canonical: "/",
-  },
 };
 
 export default function RootLayout({
