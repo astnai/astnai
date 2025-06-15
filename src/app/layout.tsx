@@ -28,6 +28,21 @@ export const metadata: Metadata = {
     template: "astnai/%s",
     default: "astnai",
   },
+  openGraph: {
+    title: "astnai",
+    siteName: "astnai",
+    url: "https://astnai.com",
+    description: "astnai is the handle of Agustín Arias, a developer from Patagonia, Argentina.",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    title: "astnai",
+    description: "astnai is the handle of Agustín Arias, a developer from Patagonia, Argentina.",
+    card: "summary",
+    site: "@astnai",
+    creator: "@astnai",
+  },
 };
 
 export default function RootLayout({
