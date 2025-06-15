@@ -12,11 +12,6 @@ type HistoryItem = {
   prompt: string;
 };
 
-type NanoCursor = {
-  x: number;
-  y: number;
-};
-
 // ===== Component =====
 export default function Terminal() {
   // ===== State Management =====
@@ -53,17 +48,11 @@ export default function Terminal() {
   const [currentTime, setCurrentTime] = useState("00:00");
   const [isHandlingVideoControl, setIsHandlingVideoControl] = useState(false);
 
-  // Nano editor state
-  const [isNanoMode, setIsNanoMode] = useState(false);
-  const [nanoContent, setNanoContent] = useState<string[]>([]);
-  const [nanoCursor, setNanoCursor] = useState<NanoCursor>({ x: 0, y: 0 });
-
   // ===== Refs =====
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const nanoRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
   // ===== File System Utilities =====
@@ -261,8 +250,7 @@ export default function Terminal() {
   const handleTabCompletion = () => {
     const parts = input.trim().split(" ");
     const command = parts[0].toLowerCase();
-    if (!["cd", "cat", "viu", "ls", "play", "nano", "copy"].includes(command))
-      return;
+    if (!["cd", "cat", "viu", "ls", "play", "copy"].includes(command)) return;
 
     const lastArg = parts[parts.length - 1] || "";
     const currentDir = getCurrentDirectory();
@@ -343,8 +331,8 @@ export default function Terminal() {
       return;
     }
 
-    // Handle file-related commands (cat, viu, play, nano)
-    if (["cat", "viu", "play", "nano"].includes(command)) {
+    // Handle file-related commands (cat, viu, play)
+    if (["cat", "viu", "play"].includes(command)) {
       if (
         currentDir &&
         currentDir.type === "directory" &&
@@ -552,7 +540,6 @@ echo        - Print text
 date        - Show date and time
 whoami      - Show username
 cowsay      - Make a cow say something
-nano        - View text files
 copy        - Copy text file to clipboard
 help        - Show this help message
 
@@ -603,10 +590,6 @@ Tip: Use TAB to autocomplete files and directories`;
           case "cowsay":
             output =
               "cowsay - Make a cow say something\nUsage: cowsay [message]\nDisplays an ASCII art cow with a speech bubble containing your message.";
-            break;
-          case "nano":
-            output =
-              "nano - View and navigate text files\nUsage: nano [filename]\nOpens a read-only text editor with cursor navigation.\nControls:\n- Arrow keys or WASD to move cursor\n- X to exit";
             break;
           case "copy":
             output =
@@ -919,92 +902,6 @@ Path: ${currentPath}`;
 
         output = bubble + cow;
       }
-    } else if (command === "nano") {
-      if (args.length === 0) {
-        output = "Usage: nano [filename]";
-      } else {
-        const file = getFileAtPath(args[0]) as File;
-        if (file && file.type === "file") {
-          if (file.content === "image" || file.content === "video") {
-            output = `nano: ${args[0]}: Is a binary file`;
-          } else {
-            const content = file.content as string;
-            const lines = content.split("\n");
-            setNanoContent(lines);
-            setIsNanoMode(true);
-            setNanoCursor({ x: 0, y: 0 });
-
-            output = (
-              <div key="nano-editor" className="mt-2 mb-3">
-                <div
-                  ref={nanoRef}
-                  className="bg-white border border-neutral-200 dark:border-neutral-800 dark:bg-neutral-950 rounded-none p-2 font-mono text-sm outline-none max-h-[300px] overflow-hidden"
-                  tabIndex={0}
-                  onFocus={() => {
-                    if (nanoRef.current) {
-                      nanoRef.current.focus();
-                    }
-                  }}
-                  onBlur={() => {
-                    if (isNanoMode && nanoRef.current) {
-                      nanoRef.current.focus();
-                    }
-                  }}
-                >
-                  <div className="flex justify-between items-center border-b border-neutral-200 dark:border-neutral-800 pb-1 mb-2">
-                    <span className="text-neutral-500">
-                      GNU nano (read-only)
-                    </span>
-                    <span className="text-neutral-500">{args[0]}</span>
-                  </div>
-                  <div className="flex overflow-hidden">
-                    <div className="text-neutral-500 pr-2 select-none shrink-0">
-                      {lines
-                        .map((_, i) => (i + 1).toString().padStart(3, " "))
-                        .join("\n")}
-                    </div>
-                    <div className="relative overflow-y-auto max-h-[250px] w-full">
-                      {lines.map((line, y) => (
-                        <div
-                          key={y}
-                          className="relative break-words whitespace-pre-wrap"
-                        >
-                          {line.split("").map((char, x) => (
-                            <span
-                              key={x}
-                              className={`
-                                ${
-                                  nanoCursor.x === x && nanoCursor.y === y
-                                    ? "bg-neutral-200 dark:bg-neutral-800"
-                                    : ""
-                                }
-                                ${char === " " ? "invisible" : ""}
-                              `}
-                            >
-                              {char}
-                            </span>
-                          ))}
-                          {nanoCursor.x === line.length &&
-                            nanoCursor.y === y && (
-                              <span className="bg-neutral-200 dark:bg-neutral-800">
-                                &nbsp;
-                              </span>
-                            )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-neutral-500 text-xs mt-1">
-                  [ Read-only mode - Press X to exit ]
-                </div>
-              </div>
-            );
-          }
-        } else {
-          output = `nano: ${args[0]}: No such file`;
-        }
-      }
     } else if (command === "copy") {
       if (args.length === 0) {
         output = "Missing file operand";
@@ -1244,87 +1141,6 @@ Path: ${currentPath}`;
       setUsername(savedUsername);
     }
   }, []);
-
-  // Focus nano editor
-  useEffect(() => {
-    if (isNanoMode && nanoRef.current) {
-      setTimeout(() => {
-        nanoRef.current?.focus();
-      }, 0);
-    }
-  }, [isNanoMode]);
-
-  // Nano editor keyboard controls
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (!isNanoMode) return;
-
-      const lines = nanoContent;
-      const maxY = lines.length - 1;
-      const maxX = lines[nanoCursor.y]?.length || 0;
-
-      if (
-        [
-          "arrowup",
-          "arrowdown",
-          "arrowleft",
-          "arrowright",
-          "w",
-          "a",
-          "s",
-          "d",
-          "x",
-        ].includes(e.key.toLowerCase())
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      switch (e.key.toLowerCase()) {
-        case "arrowup":
-        case "w":
-          setNanoCursor((prev) => ({
-            x: Math.min(prev.x, lines[Math.max(0, prev.y - 1)]?.length || 0),
-            y: Math.max(0, prev.y - 1),
-          }));
-          break;
-        case "arrowdown":
-        case "s":
-          setNanoCursor((prev) => ({
-            x: Math.min(prev.x, lines[Math.min(maxY, prev.y + 1)]?.length || 0),
-            y: Math.min(maxY, prev.y + 1),
-          }));
-          break;
-        case "arrowleft":
-        case "a":
-          setNanoCursor((prev) => ({
-            x: Math.max(0, prev.x - 1),
-            y: prev.y,
-          }));
-          break;
-        case "arrowright":
-        case "d":
-          setNanoCursor((prev) => ({
-            x: Math.min(maxX, prev.x + 1),
-            y: prev.y,
-          }));
-          break;
-        case "x":
-          setIsNanoMode(false);
-          setNanoContent([]);
-          setNanoCursor({ x: 0, y: 0 });
-          setHistory((prev) => prev.slice(0, -1));
-          inputRef.current?.focus();
-          break;
-      }
-    };
-
-    if (isNanoMode) {
-      window.addEventListener("keydown", handleGlobalKeyDown, true);
-      return () =>
-        window.removeEventListener("keydown", handleGlobalKeyDown, true);
-    }
-  }, [isNanoMode, nanoContent, nanoCursor]);
 
   // ===== Render =====
   return (
