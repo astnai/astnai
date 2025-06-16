@@ -138,10 +138,45 @@ export const fileSystem: FileSystemNode = {
           videos: {
             type: "directory",
             children: {
-              "steve-jobs-stanford.mp4": {
+              "steve-jobs-secrets-of-life.mp4": {
                 type: "file",
                 content: "video",
-                videoUrl: "/terminal/steve-jobs-stanford.mp4",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZ7GfyPRzcHDANJhRsnGvB1b9p5PVXWL3TUlt0",
+              },
+              "zelda-ocarina-of-time-intro.mp4": {
+                type: "file",
+                content: "video",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZhSyiREAWFDYmUGP2vMQNKJsju4aSynkobIz9",
+              },
+              "joe-hisashi-howls-moving-castle.mp4": {
+                type: "file",
+                content: "video",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZDak5lbYPmGib4rYejokJdTSIsFXWRzH7wNf0",
+              },
+              "sam-altman-advice.mp4": {
+                type: "file",
+                content: "video",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZDgoTW0YPmGib4rYejokJdTSIsFXWRzH7wNf0",
+              },
+              "super-mario-galaxy.mp4": {
+                type: "file",
+                content: "video",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZUCxM61cO3VMy8g7pD69zhb2tSC5RTincqofd",
+              },
+              "mark-zuckerberg-interview.mp4": {
+                type: "file",
+                content: "video",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZhb0e7rAWFDYmUGP2vMQNKJsju4aSynkobIz9",
+              },
+              "people-dreams-one-piece.mp4": {
+                type: "file",
+                content: "video",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZYckfT13GJnqZOrjlzNTHV51DmwoPxhvcgF2A",
+              },
+              "zelda-twilight-princess-intro.mp4": {
+                type: "file",
+                content: "video",
+                videoUrl: "https://i4jauuo5gk.ufs.sh/f/bg1v3x3oGVlZvnPBO5bFSk9hwmnyr1D5jsIizPatduM6qWfK",
               },
             },
           },
