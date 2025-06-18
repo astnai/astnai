@@ -7,7 +7,7 @@ interface PolaroidGalleryProps {
 
 export const PolaroidGallery = ({ polaroids }: PolaroidGalleryProps) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 px-4 sm:px-0">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 px-2 sm:px-0">
       {polaroids.map((polaroid, index) => (
         <PolaroidCard
           key={index}
