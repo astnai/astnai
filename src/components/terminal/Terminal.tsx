@@ -43,6 +43,7 @@ export default function Terminal() {
 
   // Media state
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   const [isVideoMode, setIsVideoMode] = useState(false);
   const [videoDuration, setVideoDuration] = useState("00:00");
   const [currentTime, setCurrentTime] = useState("00:00");
@@ -216,6 +217,9 @@ export default function Terminal() {
     videoRef.current.play().catch((error) => {
       console.error("Error auto-playing video:", error);
     });
+
+    // Trigger auto-scroll
+    setVideoLoaded((prev) => !prev);
   };
 
   /**
@@ -834,7 +838,12 @@ Path: ${currentPath}`;
                 ref={videoRef}
                 src={file.videoUrl}
                 className="max-w-full rounded-none bg-black"
-                style={{ maxHeight: "250px", width: "100%" }}
+                style={{ 
+                  maxHeight: isMobile ? "300px" : "450px", 
+                  height: isMobile ? "auto" : "450px", 
+                  width: "100%", 
+                  objectFit: "contain" 
+                }}
                 controls={false}
                 autoPlay
                 onTimeUpdate={handleTimeUpdate}
@@ -1051,7 +1060,7 @@ Path: ${currentPath}`;
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
-  }, [history, imageLoaded]);
+  }, [history, imageLoaded, videoLoaded]);
 
   // Focus management
   useEffect(() => {
@@ -1145,9 +1154,9 @@ Path: ${currentPath}`;
   // ===== Render =====
   return (
     <div className="flex items-center justify-center leading-normal">
-      <div className="max-w-screen-sm w-full">
+      <div className="w-full">
         <div
-          className="bg-neutral-100 dark:bg-neutral-900 shadow-xs dark:shadow-white/10 ring ring-neutral-800/10 dark:ring-neutral-200/10 rounded-xl h-[450px] md:h-[560px] lg:h-[620px] overflow-hidden flex flex-col text-xs sm:text-sm tracking-tight"
+          className="bg-neutral-100 dark:bg-neutral-900 shadow-xs dark:shadow-white/10 ring ring-neutral-800/10 dark:ring-neutral-200/10 rounded-xl h-[450px] md:h-[560px] lg:h-[600px] overflow-hidden flex flex-col text-xs sm:text-sm tracking-tight"
           onClick={() => !isMobile && inputRef.current?.focus()}
         >
           {/* Terminal header */}

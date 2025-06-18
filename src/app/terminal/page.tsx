@@ -6,5 +6,9 @@ export const metadata: Metadata = {
 };
 
 export default function TermianlPage() {
-  return <Terminal />
+  return (
+    <div className="lg:-mx-40">
+      <Terminal />
+    </div>
+  )
 }
