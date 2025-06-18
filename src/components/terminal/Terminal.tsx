@@ -275,7 +275,7 @@ export default function Terminal() {
               {
                 command: input,
                 output: (
-                  <div className="text-neutral-800 dark:text-neutral-200">
+                  <div className=" ">
                     {directories.join("  ")}
                   </div>
                 ),
@@ -301,7 +301,7 @@ export default function Terminal() {
             {
               command: input,
               output: (
-                <div className="text-neutral-800 dark:text-neutral-200">
+                <div className=" ">
                   {matches.join("  ")}
                 </div>
               ),
@@ -350,7 +350,7 @@ export default function Terminal() {
               const gridItems = items.map((name) => (
                 <div
                   key={name}
-                  className="text-neutral-800 dark:text-neutral-200"
+                  className=" "
                 >
                   {name}
                 </div>
@@ -376,7 +376,7 @@ export default function Terminal() {
                 {
                   command: input,
                   output: (
-                    <div className="text-neutral-800 dark:text-neutral-200">
+                    <div className=" ">
                       {items.join("  ")}
                     </div>
                   ),
@@ -405,7 +405,7 @@ export default function Terminal() {
             const gridItems = matches.map((name) => (
               <div
                 key={name}
-                className="text-neutral-800 dark:text-neutral-200"
+                className=" "
               >
                 {name}
               </div>
@@ -431,7 +431,7 @@ export default function Terminal() {
               {
                 command: input,
                 output: (
-                  <div className="text-neutral-800 dark:text-neutral-200">
+                  <div className=" ">
                     {matches.join("  ")}
                   </div>
                 ),
@@ -479,7 +479,7 @@ export default function Terminal() {
         {
           command: input,
           output: (
-            <div className="text-neutral-800 dark:text-neutral-200">
+            <div className=" ">
               {matches.join("  ")}
             </div>
           ),
@@ -708,7 +708,7 @@ Path: ${currentPath}`;
 
         if (isMediaPhotos || isMediaVideos) {
           const gridItems = items.map((name) => (
-            <div key={name} className="text-neutral-800 dark:text-neutral-200">
+            <div key={name} className=" ">
               {name}
             </div>
           ));
@@ -1165,7 +1165,7 @@ Path: ${currentPath}`;
           {/* Terminal content */}
           <div
             ref={terminalRef}
-            className="flex-1 p-4 overflow-auto font-mono text-neutral-800 dark:text-neutral-200"
+            className="flex-1 p-4 overflow-auto font-mono  "
           >
             {history.map((item, index) => (
               <div key={index} className="mb-2">
@@ -1176,7 +1176,7 @@ Path: ${currentPath}`;
                   </div>
                 )}
                 {item.output && (
-                  <div className="text-neutral-800 dark:text-neutral-200 ml-4 whitespace-pre-wrap">
+                  <div className="  ml-4 whitespace-pre-wrap">
                     {item.output}
                   </div>
                 )}
@@ -1195,7 +1195,7 @@ Path: ${currentPath}`;
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="w-full bg-transparent outline-none font-mono text-neutral-800 dark:text-neutral-200"
+                  className="w-full bg-transparent outline-none font-mono  "
                   autoFocus
                 />
               </div>

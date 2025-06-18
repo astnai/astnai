@@ -71,7 +71,7 @@ const LinksPage = () => {
         <h2 id="social-note-heading" className="sr-only">
           Personal Note
         </h2>
-        <p className="text-sm md:text-base text-neutral-800 dark:text-neutral-200 text-balance">
+        <p className="text-sm md:text-base   text-balance">
           <span className="text-blue-500" aria-hidden="true">
             *
           </span>

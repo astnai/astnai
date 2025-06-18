@@ -11,7 +11,7 @@ const HeaderLink = () => {
   return (
     <Link
       href="/"
-      className="group inline-flex items-center font-medium tracking-tight text-neutral-800 dark:text-neutral-200"
+      className="group inline-flex items-center font-medium tracking-tight  "
       aria-label="Go to homepage"
       tabIndex={0}
     >
@@ -23,7 +23,7 @@ const HeaderLink = () => {
       {!isHome && (
         <ViewTransition name="pathname">
           <span
-            className="text-neutral-800 dark:text-neutral-200"
+            className=" "
             aria-label={`Current page: ${pathname.slice(1)}`}
           >
             {pathname}

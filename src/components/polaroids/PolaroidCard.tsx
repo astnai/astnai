@@ -32,7 +32,7 @@ export const PolaroidCard = ({ polaroid, index }: PolaroidCardProps) => {
       }}
     >
       <PolaroidImage src={polaroid.src} alt={polaroid.alt} index={index} />
-      <p className="text-neutral-800 font-medium mt-1 py-2 text-center font-handwriting text-2xl">
+      <p className=" font-medium mt-1 py-2 text-center font-handwriting text-2xl text-neutral-800">
         {polaroid.caption}
       </p>
     </motion.div>

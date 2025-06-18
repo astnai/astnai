@@ -53,7 +53,7 @@ export default function RootLayout({
       >
         <Header />
         <ViewTransition name="layout">
-          <main className="mx-auto max-w-screen-sm px-8 text-neutral-800 dark:text-neutral-200">
+          <main className="mx-auto max-w-screen-sm px-8">
             {children}
             <Analytics />
             <SpeedInsights/>
