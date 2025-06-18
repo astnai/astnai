@@ -30,7 +30,7 @@ export default function TalksPage() {
               <h2 className="font-medium tracking-tight">{talk.title}</h2>
               <time
                 dateTime={talk.date}
-                className="mb-4 flex justify-between text-xs md:text-sm text-neutral-500"
+                className="mb-4 flex justify-between text-xs sm:text-sm text-neutral-500"
               >
                 {talk.date}
               </time>

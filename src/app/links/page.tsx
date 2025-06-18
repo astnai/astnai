@@ -71,13 +71,13 @@ const LinksPage = () => {
         <h2 id="social-note-heading" className="sr-only">
           Personal Note
         </h2>
-        <p className="text-sm md:text-base   text-balance">
+        <p className="text-balance">
           <span className="text-blue-500" aria-hidden="true">
             *
           </span>
           personally, i don&apos;t use social media much. i&apos;m only active
           on{" "}
-          <span className="bg-neutral-200 dark:bg-neutral-800 py-0.5 px-1 md:py-1 rounded-md text-xs md:text-sm">
+          <span className="bg-neutral-200 dark:bg-neutral-800 py-0.5 px-1 md:py-1 rounded-md text-xs sm:text-sm">
             twitter
           </span>{" "}
           — the <span className="italic">everything</span> app.

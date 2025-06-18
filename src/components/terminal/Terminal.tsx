@@ -846,7 +846,7 @@ Path: ${currentPath}`;
                 playsInline
                 preload="auto"
               />
-              <div className="mt-2 flex items-center justify-between text-sm">
+              <div className="mt-2 flex items-center justify-between text-xs sm:text-sm">
                 <span className="text-neutral-500">
                   Q[QUIT] K[VOLUME DOWN] L[VOLUME UP] P[PAUSE/PLAY]
                 </span>
@@ -1147,7 +1147,7 @@ Path: ${currentPath}`;
     <div className="flex items-center justify-center leading-normal">
       <div className="max-w-screen-sm w-full">
         <div
-          className="bg-neutral-100 dark:bg-neutral-900 shadow-xs dark:shadow-white/10 ring ring-neutral-800/10 dark:ring-neutral-200/10 rounded-xl h-[500px] overflow-hidden flex flex-col text-xs sm:text-sm tracking-tight"
+          className="bg-neutral-100 dark:bg-neutral-900 shadow-xs dark:shadow-white/10 ring ring-neutral-800/10 dark:ring-neutral-200/10 rounded-xl h-[450px] md:h-[560px] lg:h-[620px] overflow-hidden flex flex-col text-xs sm:text-sm tracking-tight"
           onClick={() => !isMobile && inputRef.current?.focus()}
         >
           {/* Terminal header */}

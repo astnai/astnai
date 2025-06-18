@@ -49,11 +49,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="overflow-x-hidden touch-manipulation">
       <body
-        className={`${geistSans.className} ${geistMono.variable}  ${caveat.variable} antialiased text-sm sm:text-[15px] md:text-base leading-relaxed`}
+        className={`${geistSans.className} ${geistMono.variable} ${caveat.variable} mx-auto max-w-screen-sm px-6 sm:px-8 md:px-10 text-sm sm:text-[15px] md:text-base leading-relaxed antialiased`}
       >
         <Header />
         <ViewTransition name="layout">
-          <main className="mx-auto max-w-screen-sm px-8">
+          <main>
             {children}
             <Analytics />
             <SpeedInsights/>

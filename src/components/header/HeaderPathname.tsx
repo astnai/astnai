@@ -16,7 +16,7 @@ const HeaderLink = () => {
       tabIndex={0}
     >
       <h1
-        className="text-sm sm:text-[15px] md:text-base group-hover:text-neutral-500"
+        className="group-hover:text-neutral-500"
       >
         astnai
       </h1>

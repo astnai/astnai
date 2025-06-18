@@ -3,7 +3,7 @@ import { ExternalLinkIcon } from "@radix-ui/react-icons";
 
 const Header = () => {
   return (
-    <div className="mx-auto flex py-12 max-w-screen-sm items-center justify-between px-8">
+    <div className="mx-auto flex py-12 mt-12 max-w-screen-sm items-center justify-between">
       <HeaderLink />
 
       <div className="flex items-center gap-4">
