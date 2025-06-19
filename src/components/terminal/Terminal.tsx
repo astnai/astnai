@@ -1,9 +1,10 @@
 "use client";
 
-import type React from "react";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { fileSystem, type File, type Directory } from "./fileSystem";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // ===== Types =====
 type HistoryItem = {
@@ -12,8 +13,29 @@ type HistoryItem = {
   prompt: string;
 };
 
+// ===== Constants =====
+const AVAILABLE_COMMANDS = [
+  "ls", "cd", "pwd", "cat", "viu", "rename", "clear", "echo", "date", "whoami", "cowsay", "copy", "help", "open", "tree",
+];
+const OPENABLE_PAGES_LIST = [
+  "polaroids", "/polaroids", "projects", "/projects", "books", "/books", "talks", "/talks", "links", "/links", "terminal", "/terminal",
+];
+const OPENABLE_PAGES: { [key: string]: string } = {
+  polaroids: "/polaroids",
+  "/polaroids": "/polaroids",
+  projects: "/projects",
+  "/projects": "/projects",
+  books: "/books",
+  "/books": "/books",
+  talks: "/talks",
+  "/talks": "/talks",
+  links: "/links",
+  "/links": "/links",
+  terminal: "/terminal",
+  "/terminal": "/terminal",
+};
+
 // ===== Utility Functions =====
-// File System Utilities
 const getSortedItems = (dir: Directory) => {
   return Object.entries(dir.children)
     .map(([name, item]) => ({
@@ -38,26 +60,44 @@ const getSortedItems = (dir: Directory) => {
     .map((item) => item.name);
 };
 
+// ===== Command Execution =====
+const renderTree = (
+  node: Directory | File,
+  name: string,
+  prefix = "",
+  isLast = true
+): React.ReactNode => {
+  if (node.type === "file") {
+    return (
+      <div key={prefix + name} className="whitespace-pre">
+        {prefix + (isLast ? "└── " : "├── ") + name}
+      </div>
+    );
+  }
+  const entries = Object.entries((node as Directory).children);
+  return (
+    <div key={prefix + name} className="whitespace-pre">
+      {prefix + (name ? (isLast ? "└── " : "├── ") : "") + (name ? name + "/" : "")}
+      {entries.map(([childName, childNode], idx) =>
+        renderTree(
+          childNode,
+          childName,
+          prefix + (name ? (isLast ? "    " : "│   ") : ""),
+          idx === entries.length - 1
+        )
+      )}
+    </div>
+  );
+};
+
 // ===== Component =====
 export default function Terminal() {
   // ===== State =====
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([
-    {
-      command: "",
-      output: `░█▀█░█▀█\n░█▀█░█▀█\n░▀░▀░▀░▀`,
-      prompt: "",
-    },
-    {
-      command: "",
-      output: "Welcome to astnai terminal",
-      prompt: "",
-    },
-    {
-      command: "",
-      output: "Type 'help' to see available commands",
-      prompt: "",
-    },
+    { command: "", output: `░█▀█░█▀█\n░█▀█░█▀█\n░▀░▀░▀░▀`, prompt: "" },
+    { command: "", output: "Welcome to astnai terminal", prompt: "" },
+    { command: "", output: "Type 'help' to see available commands", prompt: "" },
   ]);
   const [currentPath, setCurrentPath] = useState("/");
   const [username, setUsername] = useState("user@computer");
@@ -75,17 +115,14 @@ export default function Terminal() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const isMobile = useIsMobile();
+  const router = useRouter();
 
-  // ===== File System Utilities (Component Scope) =====
+  // ===== File System Utilities =====
   const getCurrentDirectory = () => {
     const pathParts = currentPath.split("/").filter(Boolean);
     let current = fileSystem["/"] as Directory;
     for (const part of pathParts) {
-      if (
-        current.type === "directory" &&
-        current.children &&
-        current.children[part]
-      ) {
+      if (current.type === "directory" && current.children && current.children[part]) {
         current = current.children[part] as Directory;
       } else {
         return null;
@@ -99,11 +136,7 @@ export default function Terminal() {
       const pathParts = path.split("/").filter(Boolean);
       let current = fileSystem["/"] as Directory;
       for (const part of pathParts) {
-        if (
-          current.type === "directory" &&
-          current.children &&
-          current.children[part]
-        ) {
+        if (current.type === "directory" && current.children && current.children[part]) {
           current = current.children[part] as Directory;
         } else {
           return null;
@@ -149,260 +182,206 @@ export default function Terminal() {
   const handleTabCompletion = () => {
     const parts = input.trim().split(" ");
     const command = parts[0].toLowerCase();
-    if (!["cd", "cat", "viu", "ls", "play", "copy"].includes(command)) return;
-
     const lastArg = parts[parts.length - 1] || "";
-    const currentDir = getCurrentDirectory();
 
-    // Special handling for cd command
-    if (command === "cd") {
-      if (
-        currentDir &&
-        currentDir.type === "directory" &&
-        currentDir.children
-      ) {
-        const directories = Object.entries(currentDir.children)
-          .filter(([, item]) => item.type === "directory")
-          .map(([name]) => `${name}/`)
-          .sort((a, b) => a.localeCompare(b));
-
-        if (parts.length === 1) {
-          if (directories.length > 0) {
-            const currentPrompt = getCurrentPrompt();
-            setHistory((prev) => [
-              ...prev,
-              {
-                command: input,
-                output: (
-                  <div className=" ">
-                    {directories.join("  ")}
-                  </div>
-                ),
-                prompt: currentPrompt,
-              },
-            ]);
-          }
-          return;
-        }
-
-        const matches = directories.filter((dir) =>
-          dir.toLowerCase().startsWith(lastArg.toLowerCase())
-        );
-
-        if (matches.length === 1) {
-          const newParts = [...parts];
-          newParts[newParts.length - 1] = matches[0];
-          setInput(newParts.join(" "));
-        } else if (matches.length > 1) {
-          const currentPrompt = getCurrentPrompt();
-          setHistory((prev) => [
-            ...prev,
-            {
-              command: input,
-              output: (
-                <div className=" ">
-                  {matches.join("  ")}
-                </div>
-              ),
-              prompt: currentPrompt,
-            },
-          ]);
-
-          const commonPrefix = matches.reduce((prefix, match) => {
-            let common = "";
-            for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
-              if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
-                common += match[i];
-              } else {
-                break;
-              }
-            }
-            return common;
-          }, matches[0]);
-
-          if (commonPrefix.length > lastArg.length) {
-            const newParts = [...parts];
-            newParts[newParts.length - 1] = commonPrefix;
-            setInput(newParts.join(" "));
-          }
-        }
-      }
-      return;
-    }
-
-    // Handle file-related commands (cat, viu, play)
-    if (["cat", "viu", "play"].includes(command)) {
-      if (
-        currentDir &&
-        currentDir.type === "directory" &&
-        currentDir.children
-      ) {
-        const items = getSortedItems(currentDir);
-
-        if (parts.length === 1) {
-          if (items.length > 0) {
-            const currentPrompt = getCurrentPrompt();
-            const isMediaPhotos = currentPath === "/media/photos";
-            const isMediaVideos = currentPath === "/media/videos";
-
-            if (isMediaPhotos || isMediaVideos) {
-              const gridItems = items.map((name) => (
-                <div
-                  key={name}
-                  className=" "
-                >
-                  {name}
-                </div>
-              ));
-
-              setHistory((prev) => [
-                ...prev,
-                {
-                  command: input,
-                  output: (
-                    <div>
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
-                        {gridItems}
-                      </div>
-                    </div>
-                  ),
-                  prompt: currentPrompt,
-                },
-              ]);
-            } else {
-              setHistory((prev) => [
-                ...prev,
-                {
-                  command: input,
-                  output: (
-                    <div className=" ">
-                      {items.join("  ")}
-                    </div>
-                  ),
-                  prompt: currentPrompt,
-                },
-              ]);
-            }
-          }
-          return;
-        }
-
-        const matches = items.filter((item) =>
-          item.toLowerCase().startsWith(lastArg.toLowerCase())
-        );
-
-        if (matches.length === 1) {
-          const newParts = [...parts];
-          newParts[newParts.length - 1] = matches[0];
-          setInput(newParts.join(" "));
-        } else if (matches.length > 1) {
-          const currentPrompt = getCurrentPrompt();
-          const isMediaPhotos = currentPath === "/media/photos";
-          const isMediaVideos = currentPath === "/media/videos";
-
-          if (isMediaPhotos || isMediaVideos) {
-            const gridItems = matches.map((name) => (
-              <div
-                key={name}
-                className=" "
-              >
-                {name}
-              </div>
-            ));
-
-            setHistory((prev) => [
-              ...prev,
-              {
-                command: input,
-                output: (
-                  <div>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
-                      {gridItems}
-                    </div>
-                  </div>
-                ),
-                prompt: currentPrompt,
-              },
-            ]);
-          } else {
-            setHistory((prev) => [
-              ...prev,
-              {
-                command: input,
-                output: (
-                  <div className=" ">
-                    {matches.join("  ")}
-                  </div>
-                ),
-                prompt: currentPrompt,
-              },
-            ]);
-          }
-
-          const commonPrefix = matches.reduce((prefix, match) => {
-            let common = "";
-            for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
-              if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
-                common += match[i];
-              } else {
-                break;
-              }
-            }
-            return common;
-          }, matches[0]);
-
-          if (commonPrefix.length > lastArg.length) {
-            const newParts = [...parts];
-            newParts[newParts.length - 1] = commonPrefix;
-            setInput(newParts.join(" "));
-          }
-        }
-      }
-      return;
-    }
-
-    // Handle ls command
-    const availableItems = getAvailableItems();
-    const matches = availableItems.filter((item) =>
-      item.toLowerCase().startsWith(lastArg.toLowerCase())
-    );
-
-    if (matches.length === 1) {
-      const newParts = [...parts];
-      newParts[newParts.length - 1] = matches[0];
-      setInput(newParts.join(" "));
-    } else if (matches.length > 1) {
-      const currentPrompt = getCurrentPrompt();
+    // --- NUEVO: Sugerencias especiales para play/viu en videos/photos ---
+    const isPlayInVideos = command === "play" && currentPath === "/media/videos";
+    const isViuInPhotos = command === "viu" && currentPath === "/media/photos";
+    if ((isPlayInVideos || isViuInPhotos) && (parts.length === 1 || (parts.length === 2 && lastArg === ""))) {
+      // Mostrar todos los archivos disponibles como ls (en grid)
+      const availableItems = getAvailableItems();
       setHistory((prev) => [
         ...prev,
         {
           command: input,
           output: (
-            <div className=" ">
-              {matches.join("  ")}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
+              {availableItems.map((name) => (
+                <div key={name}>{name}</div>
+              ))}
             </div>
           ),
-          prompt: currentPrompt,
+          prompt: getCurrentPrompt(),
         },
       ]);
+      return;
+    }
+    if ((isPlayInVideos || isViuInPhotos) && parts.length === 2 && lastArg !== "") {
+      // Filtrar archivos disponibles como ls (en grid)
+      const availableItems = getAvailableItems();
+      const matches = availableItems.filter((item) => item.toLowerCase().startsWith(lastArg.toLowerCase()));
+      if (matches.length === 1) {
+        const newParts = [...parts];
+        newParts[newParts.length - 1] = matches[0];
+        setInput(newParts.join(" "));
+      } else if (matches.length > 1) {
+        setHistory((prev) => [
+          ...prev,
+          {
+            command: input,
+            output: (
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
+                {matches.map((name) => (
+                  <div key={name}>{name}</div>
+                ))}
+              </div>
+            ),
+            prompt: getCurrentPrompt(),
+          },
+        ]);
+        const commonPrefix = matches.reduce((prefix, match) => {
+          let common = "";
+          for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
+            if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
+              common += match[i];
+            } else {
+              break;
+            }
+          }
+          return common;
+        }, matches[0]);
+        if (commonPrefix.length > lastArg.length) {
+          const newParts = [...parts];
+          newParts[newParts.length - 1] = commonPrefix;
+          setInput(newParts.join(" "));
+        }
+      }
+      return;
+    }
 
-      const commonPrefix = matches.reduce((prefix, match) => {
-        let common = "";
-        for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
-          if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
-            common += match[i];
-          } else {
-            break;
+    if (input.trim() === "") {
+      setHistory((prev) => [
+        ...prev,
+        { command: input, output: (<div className=" ">{AVAILABLE_COMMANDS.join("  ")}</div>), prompt: getCurrentPrompt() },
+      ]);
+      return;
+    }
+    if (parts.length === 1) {
+      const matches = AVAILABLE_COMMANDS.filter((cmd) => cmd.startsWith(command));
+      if (matches.length === 1) {
+        setInput(matches[0] + " ");
+        return;
+      } else if (matches.length > 1) {
+        setHistory((prev) => [
+          ...prev,
+          { command: input, output: (<div className=" ">{matches.join("  ")}</div>), prompt: getCurrentPrompt() },
+        ]);
+        const commonPrefix = matches.reduce((prefix, match) => {
+          let common = "";
+          for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
+            if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
+              common += match[i];
+            } else {
+              break;
+            }
+          }
+          return common;
+        }, matches[0]);
+        if (commonPrefix.length > command.length) {
+          setInput(commonPrefix);
+        }
+        return;
+      }
+    }
+    if (command === "open") {
+      const matches = OPENABLE_PAGES_LIST.filter((page) => page.toLowerCase().startsWith(lastArg.toLowerCase()));
+      if (matches.length === 1) {
+        setInput(`open ${matches[0]}`);
+      } else if (matches.length > 1) {
+        setHistory((prev) => [
+          ...prev,
+          { command: input, output: (<div className=" ">{matches.join("  ")}</div>), prompt: getCurrentPrompt() },
+        ]);
+        const commonPrefix = matches.reduce((prefix, match) => {
+          let common = "";
+          for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
+            if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
+              common += match[i];
+            } else {
+              break;
+            }
+          }
+          return common;
+        }, matches[0]);
+        if (commonPrefix.length > lastArg.length) {
+          setInput(`open ${commonPrefix}`);
+        }
+      }
+      return;
+    }
+    if (["cd", "cat", "viu", "play", "copy"].includes(command)) {
+      const currentDir = getCurrentDirectory();
+      if (currentDir && currentDir.type === "directory" && currentDir.children) {
+        let items: string[] = [];
+        if (command === "cd") {
+          items = Object.entries(currentDir.children)
+            .filter(([, item]) => item.type === "directory")
+            .map(([name]) => `${name}/`)
+            .sort((a, b) => a.localeCompare(b));
+          items.unshift("../");
+        } else {
+          items = getSortedItems(currentDir);
+        }
+        const matches = items.filter((item) => item.toLowerCase().startsWith(lastArg.toLowerCase()));
+        if (matches.length === 1) {
+          const newParts = [...parts];
+          newParts[newParts.length - 1] = matches[0];
+          setInput(newParts.join(" "));
+        } else if (matches.length > 1) {
+          setHistory((prev) => [
+            ...prev,
+            { command: input, output: (<div className=" ">{matches.join("  ")}</div>), prompt: getCurrentPrompt() },
+          ]);
+          const commonPrefix = matches.reduce((prefix, match) => {
+            let common = "";
+            for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
+              if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
+                common += match[i];
+              } else {
+                break;
+              }
+            }
+            return common;
+          }, matches[0]);
+          if (commonPrefix.length > lastArg.length) {
+            const newParts = [...parts];
+            newParts[newParts.length - 1] = commonPrefix;
+            setInput(newParts.join(" "));
           }
         }
-        return common;
-      }, matches[0]);
-
-      if (commonPrefix.length > lastArg.length) {
-        const newParts = [...parts];
-        newParts[newParts.length - 1] = commonPrefix;
-        setInput(newParts.join(" "));
+        return;
       }
+    }
+    if (command === "ls") {
+      const availableItems = getAvailableItems();
+      const matches = availableItems.filter((item) => item.toLowerCase().startsWith(lastArg.toLowerCase()));
+      if (matches.length === 1) {
+        const newParts = [...parts];
+        newParts[newParts.length - 1] = matches[0];
+        setInput(newParts.join(" "));
+      } else if (matches.length > 1) {
+        setHistory((prev) => [
+          ...prev,
+          { command: input, output: (<div className=" ">{matches.join("  ")}</div>), prompt: getCurrentPrompt() },
+        ]);
+        const commonPrefix = matches.reduce((prefix, match) => {
+          let common = "";
+          for (let i = 0; i < Math.min(prefix.length, match.length); i++) {
+            if (prefix[i].toLowerCase() === match[i].toLowerCase()) {
+              common += match[i];
+            } else {
+              break;
+            }
+          }
+          return common;
+        }, matches[0]);
+        if (commonPrefix.length > lastArg.length) {
+          const newParts = [...parts];
+          newParts[newParts.length - 1] = commonPrefix;
+          setInput(newParts.join(" "));
+        }
+      }
+      return;
     }
   };
 
@@ -424,21 +403,23 @@ export default function Terminal() {
       if (args.length === 0) {
         output = `Available commands:
 
-ls          - List files and directories
-cd          - Change directory
-pwd         - Show current directory
-cat         - Show file contents
-viu         - View images
-rename      - Change username
-clear       - Clear screen
-echo        - Print text
-date        - Show date and time
-whoami      - Show username
-cowsay      - Make a cow say something
-copy        - Copy text file to clipboard
-help        - Show this help message
+cd           - Change directory (cd <dir>, cd .. to go back, cd to root)
+cat          - Show file contents
+clear        - Clear terminal screen
+copy         - Copy text file to clipboard
+date         - Show date and time
+echo         - Print text
+help         - Show this help message
+ls           - List files and directories
+open         - Open a page (navigate)
+pwd          - Show current directory
+rename       - Change username
+tree         - Show file system tree
+viu          - View images
+whoami       - Show username
+cowsay       - Make a cow say something
 
-Tip: Use TAB to autocomplete files and directories`;
+Tip: Use TAB to autocomplete commands, files and directories.`;
       } else {
         const helpCommand = args[0].toLowerCase();
         switch (helpCommand) {
@@ -448,7 +429,7 @@ Tip: Use TAB to autocomplete files and directories`;
             break;
           case "cd":
             output =
-              "cd - Change directory\nUsage: cd [directory] | cd .. | cd\n- cd [dir]: Move to specified directory\n- cd ..: Move up one directory level\n- cd: Return to root directory";
+              "cd - Change directory\n\nUsage:\n  cd <directory>   Move to specified directory\n  cd ..            Go back one directory\n  cd               Return to root directory";
             break;
           case "pwd":
             output =
@@ -493,6 +474,17 @@ Tip: Use TAB to autocomplete files and directories`;
           case "help":
             output =
               "help - Show help information\nUsage: help | help [command]\n- help: Show all available commands\n- help [command]: Show detailed help for a specific command";
+            break;
+          case "open":
+            output =
+              "Usage: open <page>. Available pages: polaroids, projects, books, talks, links, terminal";
+            break;
+          case "tree":
+            output = (
+              <div className="font-mono text-xs whitespace-pre-wrap mt-2">
+                {renderTree(fileSystem["/"] as Directory, "", "", true)}
+              </div>
+            );
             break;
           default:
             output = `help: no help available for '${helpCommand}'\nType 'help' to see all available commands.`;
@@ -822,6 +814,27 @@ Path: ${currentPath}`;
           output = `copy: ${args[0]}: No such file`;
         }
       }
+    } else if (command === "open") {
+      if (args.length === 0) {
+        output =
+          "Usage: open <page>. Available pages: polaroids, projects, books, talks, links, terminal";
+      } else {
+        const pageArg = args[0].startsWith("/") ? args[0] : args[0].toLowerCase();
+        const pagePath = OPENABLE_PAGES[pageArg];
+        if (pagePath) {
+          router.push(pagePath);
+          setInput("");
+          return;
+        } else {
+          output = `open: '${args[0]}' is not a valid page.`;
+        }
+      }
+    } else if (command === "tree") {
+      output = (
+        <div className="font-mono text-xs whitespace-pre-wrap mt-2">
+          {renderTree(fileSystem["/"] as Directory, "", "", true)}
+        </div>
+      );
     } else if (command === "") {
       output = "";
     } else {
