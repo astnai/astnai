@@ -12,22 +12,45 @@ type HistoryItem = {
   prompt: string;
 };
 
+// ===== Utility Functions =====
+// File System Utilities
+const getSortedItems = (dir: Directory) => {
+  return Object.entries(dir.children)
+    .map(([name, item]) => ({
+      name: item.type === "directory" ? `${name}/` : name,
+      type: item.type,
+      sortKey: name,
+    }))
+    .sort((a, b) => {
+      if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
+      const aName = a.sortKey.split(".")[0];
+      const bName = b.sortKey.split(".")[0];
+      const nameCompare = aName.localeCompare(bName, undefined, {
+        sensitivity: "case",
+        caseFirst: "lower",
+      });
+      if (nameCompare !== 0) return nameCompare;
+      return a.sortKey.localeCompare(b.sortKey, undefined, {
+        sensitivity: "case",
+        caseFirst: "lower",
+      });
+    })
+    .map((item) => item.name);
+};
+
 // ===== Component =====
 export default function Terminal() {
-  // ===== State Management =====
-  // Terminal state
+  // ===== State =====
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([
     {
       command: "",
-      output: `░█▀█░█▀█
-░█▀█░█▀█
-░▀░▀░▀░▀`,
+      output: `░█▀█░█▀█\n░█▀█░█▀█\n░▀░▀░▀░▀`,
       prompt: "",
     },
     {
       command: "",
-      output: "Welcome to astnai terminal v0.0.1",
+      output: "Welcome to astnai terminal",
       prompt: "",
     },
     {
@@ -40,14 +63,12 @@ export default function Terminal() {
   const [username, setUsername] = useState("user@computer");
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-
-  // Media state
   const [imageLoaded, setImageLoaded] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [isVideoMode, setIsVideoMode] = useState(false);
-  const [videoDuration, setVideoDuration] = useState("00:00");
-  const [currentTime, setCurrentTime] = useState("00:00");
   const [isHandlingVideoControl, setIsHandlingVideoControl] = useState(false);
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
 
   // ===== Refs =====
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,48 +77,10 @@ export default function Terminal() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const isMobile = useIsMobile();
 
-  // ===== File System Utilities =====
-  /**
-   * Gets sorted items from a directory
-   * @param dir - The directory to get items from
-   * @returns Array of sorted item names
-   */
-  const getSortedItems = (dir: Directory) => {
-    return Object.entries(dir.children)
-      .map(([name, item]) => ({
-        name: item.type === "directory" ? `${name}/` : name,
-        type: item.type,
-        sortKey: name,
-      }))
-      .sort((a, b) => {
-        if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
-
-        const aName = a.sortKey.split(".")[0];
-        const bName = b.sortKey.split(".")[0];
-
-        const nameCompare = aName.localeCompare(bName, undefined, {
-          sensitivity: "case",
-          caseFirst: "lower",
-        });
-
-        if (nameCompare !== 0) return nameCompare;
-
-        return a.sortKey.localeCompare(b.sortKey, undefined, {
-          sensitivity: "case",
-          caseFirst: "lower",
-        });
-      })
-      .map((item) => item.name);
-  };
-
-  /**
-   * Gets the current directory object
-   * @returns The current directory or null if not found
-   */
+  // ===== File System Utilities (Component Scope) =====
   const getCurrentDirectory = () => {
     const pathParts = currentPath.split("/").filter(Boolean);
     let current = fileSystem["/"] as Directory;
-
     for (const part of pathParts) {
       if (
         current.type === "directory" &&
@@ -112,16 +95,10 @@ export default function Terminal() {
     return current;
   };
 
-  /**
-   * Gets a file or directory at the specified path
-   * @param path - The path to get the file/directory from
-   * @returns The file/directory object or null if not found
-   */
   const getFileAtPath = (path: string) => {
     if (path.startsWith("/")) {
       const pathParts = path.split("/").filter(Boolean);
       let current = fileSystem["/"] as Directory;
-
       for (const part of pathParts) {
         if (
           current.type === "directory" &&
@@ -135,49 +112,23 @@ export default function Terminal() {
       }
       return current;
     }
-
     const currentDir = getCurrentDirectory();
-    if (
-      !currentDir ||
-      currentDir.type !== "directory" ||
-      !currentDir.children
-    ) {
+    if (!currentDir || currentDir.type !== "directory" || !currentDir.children) {
       return null;
     }
     return currentDir.children[path] || null;
   };
 
   // ===== Terminal Utilities =====
-  /**
-   * Gets the display path for the terminal prompt
-   * @returns The formatted path string
-   */
   const getDisplayPath = () => (currentPath === "/" ? "/" : currentPath);
-
-  /**
-   * Gets the current terminal prompt
-   * @returns The formatted prompt string
-   */
   const getCurrentPrompt = () => `${username}:${getDisplayPath()}$`;
-
-  /**
-   * Formats time in seconds to MM:SS format
-   * @param timeInSeconds - Time in seconds to format
-   * @returns Formatted time string
-   */
-  const formatTime = (timeInSeconds: number) => {
-    if (!isFinite(timeInSeconds) || timeInSeconds < 0) return "00:00";
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
-    return `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
+  const formatMinutesSeconds = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
   };
 
   // ===== Media Handlers =====
-  /**
-   * Plays the terminal output sound
-   */
   const playOutputSound = () => {
     if (audioRef.current && !isMobile) {
       audioRef.current.currentTime = 0;
@@ -187,70 +138,15 @@ export default function Terminal() {
     }
   };
 
-  /**
-   * Handles video time updates
-   */
-  const handleTimeUpdate = () => {
-    if (!videoRef.current) return;
-    const currentTime = videoRef.current.currentTime;
-    if (isFinite(currentTime)) {
-      setCurrentTime(formatTime(currentTime));
-    }
-  };
-
-  /**
-   * Handles video load events
-   */
-  const handleVideoLoad = () => {
-    if (!videoRef.current) return;
-
-    // Reset states
-    setCurrentTime("00:00");
-    setVideoDuration("00:00");
-
-    // Set initial duration if available
-    if (isFinite(videoRef.current.duration)) {
-      setVideoDuration(formatTime(videoRef.current.duration));
-    }
-
-    // Start playback
-    videoRef.current.play().catch((error) => {
-      console.error("Error auto-playing video:", error);
-    });
-
-    // Trigger auto-scroll
-    setVideoLoaded((prev) => !prev);
-  };
-
-  /**
-   * Handles video duration changes
-   */
-  const handleDurationChange = () => {
-    if (!videoRef.current) return;
-    const duration = videoRef.current.duration;
-    if (isFinite(duration)) {
-      setVideoDuration(formatTime(duration));
-    }
-  };
-
   // ===== Tab Completion =====
-  /**
-   * Gets available items for tab completion
-   * @returns Array of available item names
-   */
   const getAvailableItems = () => {
     const currentDir = getCurrentDirectory();
     if (currentDir && currentDir.type === "directory" && currentDir.children) {
-      return Object.keys(currentDir.children).sort((a, b) =>
-        a.localeCompare(b)
-      );
+      return Object.keys(currentDir.children).sort((a, b) => a.localeCompare(b));
     }
     return [];
   };
 
-  /**
-   * Handles tab completion for commands
-   */
   const handleTabCompletion = () => {
     const parts = input.trim().split(" ");
     const command = parts[0].toLowerCase();
@@ -512,10 +408,6 @@ export default function Terminal() {
   };
 
   // ===== Command Execution =====
-  /**
-   * Executes a terminal command
-   * @param cmd - The command to execute
-   */
   const executeCommand = (cmd: string) => {
     let output: string | React.JSX.Element = "";
     const parts = cmd.trim().split(" ");
@@ -822,36 +714,23 @@ Path: ${currentPath}`;
           file.videoUrl
         ) {
           // Reset states before starting new video
-          setCurrentTime("00:00");
-          setVideoDuration("00:00");
           setIsVideoMode(true);
-
+          setVideoCurrentTime(0);
+          setVideoDuration(0);
           output = (
             <div className="mt-2 mb-3">
-              <div className="mb-1 flex items-center justify-between">
-                <span className="text-neutral-500">
-                  {currentTime} / {videoDuration}
-                </span>
-                <span className="text-neutral-500">REPRODUCER MODE</span>
-              </div>
               <video
                 ref={videoRef}
                 src={file.videoUrl}
                 className="max-w-full rounded-none bg-black"
-                style={{ 
-                  maxHeight: isMobile ? "300px" : "450px", 
-                  height: isMobile ? "auto" : "450px", 
-                  width: "100%", 
-                  objectFit: "contain" 
+                style={{
+                  maxHeight: isMobile ? "300px" : "440px",
+                  height: isMobile ? "auto" : "440px",
+                  width: "100%",
+                  objectFit: "contain",
                 }}
                 controls={false}
                 autoPlay
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedData={handleVideoLoad}
-                onDurationChange={handleDurationChange}
-                onPlay={handleTimeUpdate}
-                onPause={handleTimeUpdate}
-                onSeeked={handleTimeUpdate}
                 playsInline
                 preload="auto"
               />
@@ -955,19 +834,11 @@ Path: ${currentPath}`;
   };
 
   // ===== Event Handlers =====
-  /**
-   * Handles form submission
-   * @param e - Form event
-   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     executeCommand(input);
   };
 
-  /**
-   * Handles keyboard events
-   * @param e - Keyboard event
-   */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (isVideoMode) {
       e.preventDefault();
@@ -1014,6 +885,8 @@ Path: ${currentPath}`;
             setIsVideoMode(false);
             setInput("");
             setHistory((prev) => prev.slice(0, -1));
+            setVideoCurrentTime(0);
+            setVideoDuration(0);
           }
           break;
       }
@@ -1047,7 +920,6 @@ Path: ${currentPath}`;
   };
 
   // ===== Effects =====
-  // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio("/terminal/output-sound.mp3");
     if (audioRef.current) {
@@ -1055,29 +927,24 @@ Path: ${currentPath}`;
     }
   }, []);
 
-  // Auto-scroll terminal
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [history, imageLoaded, videoLoaded]);
 
-  // Focus management
   useEffect(() => {
     const handleFocus = () => {
       if (!isMobile) {
         inputRef.current?.focus();
       }
     };
-
     if (!isMobile) {
       inputRef.current?.focus();
     }
-
     document.addEventListener("click", handleFocus);
     document.addEventListener("focus", handleFocus);
     window.addEventListener("focus", handleFocus);
-
     return () => {
       document.removeEventListener("click", handleFocus);
       document.removeEventListener("focus", handleFocus);
@@ -1085,7 +952,6 @@ Path: ${currentPath}`;
     };
   }, [isMobile]);
 
-  // Video controls
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (isVideoMode && !isHandlingVideoControl) {
@@ -1133,17 +999,36 @@ Path: ${currentPath}`;
               setIsVideoMode(false);
               setInput("");
               setHistory((prev) => prev.slice(0, -1));
+              setVideoCurrentTime(0);
+              setVideoDuration(0);
             }
             break;
         }
       }
     };
-
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [isVideoMode, isHandlingVideoControl]);
 
-  // Load saved username
+  useEffect(() => {
+    if (!isVideoMode || !videoRef.current) {
+      setVideoCurrentTime(0);
+      setVideoDuration(0);
+      return;
+    }
+    const video = videoRef.current;
+    const handleTimeUpdate = () => setVideoCurrentTime(video.currentTime || 0);
+    const handleLoadedMetadata = () => setVideoDuration(video.duration || 0);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    if (!isNaN(video.duration)) setVideoDuration(video.duration);
+    setVideoCurrentTime(video.currentTime || 0);
+    return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+    };
+  }, [isVideoMode, videoRef.current]);
+
   useEffect(() => {
     const savedUsername = localStorage.getItem("terminal_username");
     if (savedUsername) {
@@ -1160,17 +1045,27 @@ Path: ${currentPath}`;
           onClick={() => !isMobile && inputRef.current?.focus()}
         >
           {/* Terminal header */}
-          <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+          <div className="h-12 px-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
             <div className="flex space-x-2">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
             </div>
-            <div className="text-neutral-500 absolute left-1/2 -translate-x-1/2">
-              Terminal
-            </div>
+            {isVideoMode ? (
+              <>
+                <div className="text-neutral-500 absolute left-1/2 -translate-x-1/2">
+                  Video mode
+                </div>
+                <span className="text-xs sm:text-sm tabular-nums">
+                  {`${formatMinutesSeconds(videoCurrentTime)} / ${formatMinutesSeconds(videoDuration)}`}
+                </span>
+              </>
+            ) : (
+              <div className="text-neutral-500 absolute left-1/2 -translate-x-1/2">
+                Terminal
+              </div>
+            )}
           </div>
-
           {/* Terminal content */}
           <div
             ref={terminalRef}
@@ -1191,7 +1086,6 @@ Path: ${currentPath}`;
                 )}
               </div>
             ))}
-
             {/* Current input line */}
             <form onSubmit={handleSubmit} className="flex">
               <span className="text-neutral-500 mr-2">
