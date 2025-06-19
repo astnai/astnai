@@ -64,7 +64,6 @@ export default function Terminal() {
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const [isVideoMode, setIsVideoMode] = useState(false);
   const [isHandlingVideoControl, setIsHandlingVideoControl] = useState(false);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
@@ -931,7 +930,7 @@ Path: ${currentPath}`;
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
-  }, [history, imageLoaded, videoLoaded]);
+  }, [history, imageLoaded]);
 
   useEffect(() => {
     const handleFocus = () => {
