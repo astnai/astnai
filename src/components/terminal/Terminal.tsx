@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { fileSystem, type File, type Directory } from "./fileSystem";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 // ===== Types =====
