@@ -506,6 +506,10 @@ Tip: Use TAB to autocomplete files and directories`;
     } else if (command === "rename") {
       if (args.length === 0) {
         output = "rename: missing username";
+      } else if (args[0].length > 20) {
+        output = "rename: username must be 20 characters or less";
+      } else if (/\s/.test(args[0])) {
+        output = "rename: username cannot contain spaces";
       } else {
         const newUsername = args[0];
         setUsername(newUsername);
