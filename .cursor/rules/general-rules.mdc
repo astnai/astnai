@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: `General rules of astnai.`
+globs: 
+alwaysApply:
+---
+
+# Astnai General Rules
+
+## About
+
+- Astnai is a personal and experimental website showcasing the work, resources, and interests of Agustin Arias (handle: astnai).
+
+## Environment
+- Project: `react`
+- Framework: `tailwindcss`, `nextjs app router`, 
+- Package Manager: `bun`
+- Bundler: `bunx`
+
+## General folder structure
+
+- [`src/app/`](mdc:src/app): NextJS App Router directory. Each subfolder is a route (e.g., `/books`, `/links`, `/polaroids`, `/projects`, `/talks`, `/terminal`). Each route contains a `page.tsx` file for its main component. Shared layout and global styles are in this directory as well.
+- [`src/components/`](mdc:src/components): Shared and feature-specific React components, organized by domain (e.g., `books/`, `header/`, `polaroids/`, `terminal/`).
+- [`src/data/`](mdc:src/data): Static data files (e.g., `books.ts`, `polaroids.ts`).
+- [`src/hooks/`](mdc:src/hooks): Custom React hooks (e.g., `useIsMobile.ts`).
+- [`src/lib/`](mdc:src/lib): Library code, constants, and type definitions (e.g., `constants.ts`, `types/`).
+- [`public/`](mdc:public): Public assets, including images and media, organized by feature (e.g., `polaroids/`, `talks/`, `terminal/`).
+- Project configuration files: `package.json`, `bun.lock`, `postcss.config.mjs`, `eslint.config.mjs`, `next.config.ts`, `tsconfig.json`.
+
+### App Structure
+
+- The main application is organized under the `src/app/` directory, following the Next.js App Router paradigm.
+- Each route is represented by a subfolder (e.g., `books`, `links`, `polaroids`, `projects`, `talks`, `terminal`), each containing a `page.tsx` file as the entry point for that route.
+- Shared layout and global styles are defined in `src/app/layout.tsx` and `src/app/globals.css`.
+- Static assets (images, media) are stored in the `public/` directory, organized by feature (e.g., `polaroids/`, `talks/`, `terminal/`).
+- Static data is located in `src/data/` (e.g., `books.ts`, `polaroids.ts`).
+- Shared and feature-specific components are in `src/components/`, grouped by domain.
+- Custom hooks are in `src/hooks/`.
+- Library code, constants, and type definitions are in `src/lib/`.
+
+### State Management
+
+- The project primarily uses React's built-in state management (e.g., `useState`, `useEffect`) within components.
+- Custom hooks (e.g., `useIsMobile`) are used for shared logic and responsive behavior.
+- There is no evidence of external state management libraries (such as Redux, Zustand, or Recoil); state is managed locally within components or via hooks.
+
+### Component Organization
+
+- All React components are named using PascalCase (e.g., `BookCard`, `Header`, `PolaroidGallery`, `Terminal`).
+- Components are grouped by feature/domain within `src/components/` (e.g., `books/`, `header/`, `polaroids/`, `terminal/`).
+- Shared components (used across multiple features) are placed at the top level of `src/components/` or within relevant domain folders.
+- Feature-specific components are placed in their respective domain folders.
+- File and folder names (except for React components) use kebab-case (e.g., `file-system.ts`, `use-is-mobile.ts`).

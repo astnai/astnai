@@ -11,7 +11,7 @@ const HeaderLink = () => {
   return (
     <Link
       href="/"
-      className="group inline-flex items-center font-medium tracking-tight  "
+      className="group inline-flex items-center font-medium"
       aria-label="Go to homepage"
       tabIndex={0}
     >
